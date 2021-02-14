@@ -1,0 +1,6 @@
+### Project specific ###
+.env*
+!.env.example
+
+### Ansible ###
+*.retry
