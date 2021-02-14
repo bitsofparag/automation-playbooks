@@ -41,7 +41,7 @@ For e.g,
 		ANSIBLE_TAGS='users_setup,vhosts_setup,letsencrypt_setup' \
 		ENVIRONMENT='testing' \
     PLAYBOOK='webserver' \
-    ANSIBLE_GROUPS='kelv_poc_dashboard' make run-playbook
+    ANSIBLE_GROUPS='webservers' make run-playbook
 
   (See Ansible playbook docs for more)
 endef
