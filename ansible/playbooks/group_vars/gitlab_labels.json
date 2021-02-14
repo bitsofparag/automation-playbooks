@@ -1,0 +1,117 @@
+[
+  {
+    "name": "API",
+    "color": "#428BCA",
+    "description": "API-related tasks"
+  },
+  {
+    "name": "Blocked",
+    "color": "#FF0000",
+    "description": "Tasks blocked by other tasks"
+  },
+  {
+    "name": "Bug",
+    "color": "#FF0000",
+    "description": "Bugfix required"
+  },
+  {
+    "name": "Chore",
+    "color": "#7F8C8D",
+    "description": "Mundane tasks"
+  },
+  {
+    "name": "Critical",
+    "color": "#FF0000",
+    "description": "Needs urgent attention"
+  },
+  {
+    "name": "Data processing",
+    "color": "#e8724a",
+    "description": "Modules or packages that aid in data parsing and processing"
+  },
+  {
+    "name": "Deployment",
+    "color": "#FFECDB",
+    "description": "Tasks related to CI/CD"
+  },
+  {
+    "name": "Design",
+    "color": "#0033CC",
+    "description": "Wireframes, static assets, UX-related tasks or discussions"
+  },
+  {
+    "name": "Discussion",
+    "color": "#44AD8E",
+    "description": "Needs discussion and clarifications"
+  },
+  {
+    "name": "Documentation",
+    "color": "#6D9EA8",
+    "description": "Tasks that should produce new or updated docs"
+  },
+  {
+    "name": "Doing",
+    "color": "#5CB85C",
+    "description": ""
+  },
+  {
+    "name": "Enhancement",
+    "color": "#5843AD",
+    "description": "Upgrade an existing feature"
+  },
+  {
+    "name": "Hardware",
+    "color": "#34495E",
+    "description": "Hardware-related tasks"
+  },
+  {
+    "name": "Mobile",
+    "color": "#19d1e6",
+    "description": "Tasks that should produce mobile-compatible output"
+  },
+  {
+    "name": "Needs review",
+    "color": "#D1D100",
+    "description": ""
+  },
+  {
+    "name": "Pinned",
+    "color": "#C6EB34",
+    "description": "Pinned discussions for future reference"
+  },
+  {
+    "name": "R&D",
+    "color": "#0033CC",
+    "description": "Research a new feature with a quick proof-of-concept if necessary"
+  },
+  {
+    "name": "Refactor",
+    "color": "#D10069",
+    "description": "Tasks for refactoring and clearing technical debt"
+  },
+  {
+    "name": "Storage",
+    "color": "#34495E",
+    "description": "Databases, buffers, memory, physical disks - everything with storage management"
+  },
+  {
+    "name": "Story",
+    "color": "#8E44AD",
+    "description": "User stories"
+  },
+  {
+    "name": "To Do",
+    "color": "#F0AD4E",
+    "description": "Current sprint (milestone) tasks are tagged with this label"
+  },
+  {
+    "name": "Tooling",
+    "color": "#664266",
+    "description": "Tasks related to setting up software/hardware tooling"
+  },
+  {
+    "name": "UI",
+    "color": "#E8D505",
+    "description": "Components and other UI work"
+  }
+]
