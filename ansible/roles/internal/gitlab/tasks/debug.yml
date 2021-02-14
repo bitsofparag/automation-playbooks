@@ -1,0 +1,127 @@
+---
+- name: Gitlab* GET "{{ project_name }}" project json by search in group {{ gitlab_group_name }}
+  when: project_name != "" and gitlab_group_id != ""
+  uri:
+    url: https://gitlab.com/api/v4/groups/{{ gitlab_group_id }}/projects
+    method: GET
+    body_format: form-urlencoded
+    body:
+      search: "{{ project_name }}"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: 200
+  register: project_entity_exists
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+- name: Gitlab* SET_FACT project "{{ project_name }}" exists in group "{{gitlab_group_name}}"
+  when: project_entity_exists is not skipped and (project_entity_exists.json|length == 1)
+  set_fact:
+    cacheable: yes
+    project_fact_json: "{{ project_entity_exists.json[0] }}"
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+- name: Gitlab* SET_FACT project "{{ project_name }}" doesn't exist in "{{gitlab_group_name}}"
+  when: (project_entity_exists is not skipped) and (project_entity_exists.json|length == 0)
+  set_fact:
+    cacheable: yes
+    project_fact_json: false
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+- name: Gitlab* GET project "{{ project_name }}" json by global search
+  when: (project_entity_exists is skipped) and (project_name != "" and gitlab_group_id == "")
+  uri:
+    url: https://gitlab.com/api/v4/projects
+    method: GET
+    body_format: form-urlencoded
+    body:
+      search: "{{ project_name }}"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: 200
+  register: project_entity_exists
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+# - name: Debug* gitlab_entity_exists
+#   debug:
+#     var: project_entity_exists
+#   tags:
+#     - gitlab_debug
+
+- name: Gitlab* SET_FACT project "{{ project_name }}" exists in global search
+  when: project_entity_exists is not skipped and (project_entity_exists.json|length == 1)
+  set_fact:
+    cacheable: yes
+    project_fact_json: "{{ project_entity_exists.json[0] }}"
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+- name: Gitlab* SET_FACT project "{{ project_name }}" doesn't exist in global search
+  when: (project_entity_exists is not skipped) and (project_entity_exists.json|length == 0)
+  set_fact:
+    cacheable: yes
+    project_fact_json: false
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+
+- name: Gitlab* GET group json for "{{ gitlab_group_name }}" by global search
+  when: gitlab_group_name != "" or gitlab_group_id != ""
+  uri:
+    url: https://gitlab.com/api/v4/groups
+    method: GET
+    body_format: form-urlencoded
+    body:
+      search: "{{ gitlab_group_name }}"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: 200
+  register: group_entity_exists
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+- name: Gitlab* SET_FACT group "{{ gitlab_group_name }}" exists
+  when: group_entity_exists is not skipped and (group_entity_exists.json|length == 1)
+  set_fact:
+    cacheable: yes
+    group_fact_json: "{{ group_entity_exists.json[0] }}"
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug
+
+- name: Gitlab* SET_FACT group "{{ gitlab_group_name }}" doesn't exist
+  when: group_entity_exists is not skipped and (group_entity_exists.json|length == 0)
+  set_fact:
+    cacheable: yes
+    group_fact_json: false
+  tags:
+    - gitlab_new
+    - gitlab_remove
+    - gitlab_edit
+    - gitlab_debug

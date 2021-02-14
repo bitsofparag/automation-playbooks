@@ -1,0 +1,188 @@
+# ------ Check if group or project exists
+- name: Gitlab* READ/DEBUG "{{ gitlab_group_name or project_name }}" json data
+  include_role:
+    name: gitlab
+    tasks_from: debug
+  tags:
+    - gitlab_new
+
+# ------ Tasks for creating new Gitlab projects
+- name: Gitlab* CREATE a new project named "{{ project_name }}"
+  when: project_name != "" and project_fact_json == false and gitlab_group_id == ""
+  uri:
+    url: https://gitlab.com/api/v4/projects
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ project_name }}"
+      visibility: "{{ gitlab_privacy }}"
+      description: "{{ project_description }}"
+      default_branch: "develop"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: 201
+  tags:
+    - gitlab_new
+
+- name: Gitlab* CREATE a new project named "{{ project_name }}" in "{{ gitlab_group_name }}"
+  when: project_name != "" and project_fact_json == false and gitlab_group_id != ""
+  uri:
+    url: https://gitlab.com/api/v4/projects
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ project_name }}"
+      visibility: "{{ gitlab_privacy }}"
+      description: "{{ project_description }}"
+      namespace_id: "{{ gitlab_group_id }}"
+      default_branch: "develop"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: 201
+  tags:
+    - gitlab_new
+
+- name: Gitlab* CREATE a new group named "{{ gitlab_group_name }}"
+  when: gitlab_group_name != "" and project_name == "" and group_fact_json == false
+  uri:
+    url: https://gitlab.com/api/v4/groups/
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ gitlab_group_name }}"
+      path: "{{ gitlab_group_name }}"
+      visibility: "{{ gitlab_privacy }}"
+      description: "{{ project_description }}"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: 201
+  tags:
+    - gitlab_new
+
+# ==========================================================
+# Call gitlab again for data for newly created project/group
+- name: Gitlab* READ/DEBUG "{{ gitlab_group_name or project_name }}" json data
+  include_role:
+    name: gitlab
+    tasks_from: debug
+  tags:
+    - gitlab_new
+
+# ==========================================================
+# ---- Tasks for after project or group is available
+- name: Gitlab* CREATE develop branch for project "{{project_name}}"
+  when: project_name != "" and project_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/repository/branches"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ project_fact_json['id'] }}"
+      branch: "develop"
+      ref: "master"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: [201, 400]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+- name: Gitlab* UPDATE project {{ project_name }} set develop as default branch
+  when: project_name != "" and project_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
+    method: PUT
+    body_format: form-urlencoded
+    body:
+      default_branch: "develop"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: [200, 409]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+- name: Gitlab* CREATE protection status for master branch
+  when: project_name != "" and project_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ project_fact_json['id'] }}"
+      name: "master"
+      push_access_level: 0
+      merge_access_level: 30
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: [200, 409]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+- name: Gitlab* CREATE protected status to develop branch
+  when: project_name != "" and project_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ project_fact_json['id'] }}"
+      name: "develop"
+      push_access_level: 0
+      merge_access_level: 30
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: [201, 409]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* CREATE labels for the project (without group)
+  when: project_name != "" and project_fact_json != false and (gitlab_group_id == "")
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/labels?with_counts=true"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ item['name'] }}"
+      color: "{{ item['color'] }}"
+      description: "{{ item['description'] }}"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: [201, 409]
+  with_items: "{{ gitlab_project_labels }}"
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+- name: Gitlab* CREATE labels for group "{{gitlab_group_name}}"
+  when: gitlab_group_name != "" and gitlab_group_id == "" and project_name == ""
+  uri:
+    url: "https://gitlab.com/api/v4/groups/{{ group_fact_json['id'] }}/labels?with_counts=true"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ item['name'] }}"
+      color: "{{ item['color'] }}"
+      description: "{{ item['description'] }}"
+    headers:
+      Private-Token: "{{ gitlab_token }}"
+    status_code: [201, 409]
+  with_items: "{{ gitlab_group_labels }}"
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+# ==========================================================
+# Outputs
+- name: Gitlab* Group json data
+  when: group_fact_json != false
+  debug:
+    var: group_fact_json
+  tags:
+    - gitlab_debug
+    - gitlab_new
+    - gitlab_edit
+    - gitlab_remove
