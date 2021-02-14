@@ -1,0 +1,21 @@
+# Variables shared across all playbooks in all environments
+# ---------------------------------------------------------
+
+# Project metadata: used when running tasks for a specific project
+project_namespace: "{{ lookup('env', 'PROJECT_NAMESPACE') | default('') }}"
+project_name: "{{ lookup('env', 'PROJECT_NAME') | default('') }}"
+project_team_name: "{{ lookup('env', 'PROJECT_TEAM_NAME') | default('') }}"
+project_title: "{{ lookup('env', 'PROJECT_TITLE') | default('') }}"
+project_description: "{{ lookup('env', 'PROJECT_DESCRIPTION') | default('') }}"
+project_keywords: "{{ lookup('env', 'PROJECT_KEYWORDS') | default('') }}"
+project_author: "{{ lookup('env', 'PROJECT_AUTHOR') | default('Parag M. <admin@bitsofparag.com>') }}"
+project_author_email: "{{ lookup('env', 'PROJECT_AUTHOR_EMAIL') | default('admin@bitsofparag.com') }}"
+project_license: "{{ lookup('env', 'PROJECT_LICENSE') | default('MIT') }}"
+project_domain_name: "{{ lookup('env', 'DOMAIN_NAME') | default('') }}"
+
+# Gitlab vars: used in gitlab role
+gitlab_group_name: "{{ lookup('env', 'GITLAB_GROUP_NAME') | default('') }}"
+gitlab_group_id: "{{ lookup('env', 'GITLAB_GROUP_ID') }}"
+gitlab_project_labels: "{{ lookup('file', lookup('env', 'PWD') + '/playbooks/group_vars/gitlab_labels.json') | from_json }}"
+gitlab_group_labels: "{{ lookup('file', lookup('env', 'PWD') + '/playbooks/group_vars/gitlab_labels.json') | from_json }}"
+gitlab_privacy: "{{ lookup('env', 'PROJECT_PRIVACY') | default('private') }}"
