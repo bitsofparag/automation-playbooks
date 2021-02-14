@@ -1,6 +1,9 @@
 ### Project specific ###
 .env*
 !.env.example
+/secrets/*.pub
+/secrets/*-shared*
+!/secrets/*.example
 
 ### Ansible ###
 *.retry
