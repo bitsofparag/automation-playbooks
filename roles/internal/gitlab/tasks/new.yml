@@ -159,8 +159,18 @@
 
 # ==========================================================
 # Outputs
+- name: Gitlab* Project json data
+  when: project_fact_json and project_fact_json != false
+  debug:
+    var: group_fact_json
+  tags:
+    - gitlab_debug
+    - gitlab_new
+    - gitlab_edit
+    - gitlab_remove
+
 - name: Gitlab* Group json data
-  when: group_fact_json != false
+  when: group_fact_json and group_fact_json != false
   debug:
     var: group_fact_json
   tags:
