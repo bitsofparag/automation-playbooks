@@ -78,8 +78,8 @@
     body_format: form-urlencoded
     body:
       id: "{{ project_fact_json['id'] }}"
-      branch: "develop"
-      ref: "master"
+      branch: "dev"
+      ref: "main"
     headers:
       Private-Token: "{{ gitlab_token }}"
     status_code: [201, 400]
@@ -94,25 +94,7 @@
     method: PUT
     body_format: form-urlencoded
     body:
-      default_branch: "develop"
-    headers:
-      Private-Token: "{{ gitlab_token }}"
-    status_code: [200, 409]
-  ignore_errors: true
-  tags:
-    - gitlab_new
-
-- name: Gitlab* CREATE protection status for master branch
-  when: project_name != "" and project_fact_json != false
-  uri:
-    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
-    method: POST
-    body_format: form-urlencoded
-    body:
-      id: "{{ project_fact_json['id'] }}"
-      name: "master"
-      push_access_level: 0
-      merge_access_level: 30
+      default_branch: "dev"
     headers:
       Private-Token: "{{ gitlab_token }}"
     status_code: [200, 409]
@@ -128,7 +110,7 @@
     body_format: form-urlencoded
     body:
       id: "{{ project_fact_json['id'] }}"
-      name: "develop"
+      name: "dev"
       push_access_level: 0
       merge_access_level: 30
     headers:
