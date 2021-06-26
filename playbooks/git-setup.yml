@@ -12,6 +12,5 @@
   connection: local
   vars_files:
     - '../group_vars/all'
-    - './host_vars/thispc'
   roles:
     - role: 'gitlab'
