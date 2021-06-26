@@ -57,11 +57,11 @@
     - gitlab_edit
     - gitlab_debug
 
-- name: Debug* gitlab_entity_exists
-  debug:
-    var: project_entity_exists
-  tags:
-    - gitlab_debug
+# - name: Debug* gitlab_entity_exists
+#   debug:
+#     var: project_entity_exists
+#   tags:
+#     - gitlab_debug
 
 - name: Gitlab* SET_FACT project "{{ project_name }}" exists in global search
   when: project_entity_exists is not skipped and (project_entity_exists.json|length == 1)
