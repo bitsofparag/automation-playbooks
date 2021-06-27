@@ -17,7 +17,7 @@
       name: "{{ project_name }}"
       visibility: "{{ gitlab_privacy }}"
       description: "{{ project_description }}"
-      default_branch: "develop"
+      default_branch: "dev"
     headers:
       Private-Token: "{{ gitlab_token }}"
     status_code: 201
@@ -35,7 +35,7 @@
       visibility: "{{ gitlab_privacy }}"
       description: "{{ project_description }}"
       namespace_id: "{{ gitlab_group_id }}"
-      default_branch: "develop"
+      default_branch: "dev"
     headers:
       Private-Token: "{{ gitlab_token }}"
     status_code: 201
@@ -45,7 +45,7 @@
 - name: Gitlab* CREATE a new group named "{{ gitlab_group_name }}"
   when: gitlab_group_name != "" and project_name == "" and (group_fact_json is defined and group_fact_json == false)
   uri:
-    url: https://gitlab.com/api/v4/groups/
+    url: https://gitlab.com/api/v4/groups
     method: POST
     body_format: form-urlencoded
     body:
@@ -70,7 +70,7 @@
 
 # ==========================================================
 # ---- Tasks for after project or group is available
-- name: Gitlab* CREATE develop branch for project "{{project_name}}"
+- name: Gitlab* CREATE dev branch for project "{{project_name}}"
   when: project_name != "" and project_fact_json != false
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/repository/branches"
@@ -87,7 +87,7 @@
   tags:
     - gitlab_new
 
-- name: Gitlab* UPDATE project {{ project_name }} set develop as default branch
+- name: Gitlab* UPDATE project {{ project_name }} set dev as default branch
   when: project_name != "" and project_fact_json != false
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
@@ -102,7 +102,7 @@
   tags:
     - gitlab_new
 
-- name: Gitlab* CREATE protected status to develop branch
+- name: Gitlab* CREATE protected status to dev branch
   when: project_name != "" and project_fact_json != false
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
