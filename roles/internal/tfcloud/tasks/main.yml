@@ -9,6 +9,8 @@
     headers:
       Authorization: "Bearer: {{ tfc_token }}"
       Content-Type: "application/vnd.api+json"
+    body_format: 'json'
+    return_content: yes
     status_code: 200
   register: org_list
   tags:
@@ -25,6 +27,7 @@
     headers:
       Authorization: "Bearer: {{ tfc_token }}"
       Content-Type: "application/vnd.api+json"
+    return_content: yes
     body: "{{ _tfc_org_json_body }}"
     body_format: 'json'
     status_code: 200
