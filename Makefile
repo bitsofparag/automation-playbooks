@@ -14,7 +14,7 @@ export
 endif
 
 PROJECT_ROOT = $(PWD)
-PROVISION_ROOT = $(PROJECT_ROOT)/ansible
+PROVISION_ROOT = $(PROJECT_ROOT)
 
 
 ################################################

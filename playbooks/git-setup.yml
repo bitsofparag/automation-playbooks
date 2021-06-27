@@ -1,10 +1,11 @@
 ---
 # Setup tasks
-# file: playbooks/setup.yml
-# example command: ansible-playbook -i inventories/development/hosts.ini \
+# example command: ansible-playbook -i inventory/staging/hosts.ini \
 #  -e "role=mailsync" playbooks/setup.yml --tags "setup"
 #
 # Extra variables can be set them from the cli. For example:
+#   --extra-vars "pkg_manager=npm framework=nextjs cvs=gitlab"
+# Or,
 #   --extra-vars "{'pkg_manager': 'npm', 'framework': 'nextjs', 'cvs': 'gitlab'}"
 
 - hosts: thispc
