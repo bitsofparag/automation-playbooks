@@ -8,7 +8,7 @@
 
 # ------ Tasks for creating new Gitlab projects
 - name: Gitlab* CREATE a new project named "{{ project_name }}"
-  when: project_name != "" and project_fact_json == false and gitlab_group_id == ""
+  when: project_name != "" and (project_fact_json is defined and project_fact_json == false) and gitlab_group_id == ""
   uri:
     url: https://gitlab.com/api/v4/projects
     method: POST
@@ -25,7 +25,7 @@
     - gitlab_new
 
 - name: Gitlab* CREATE a new project named "{{ project_name }}" in "{{ gitlab_group_name }}"
-  when: project_name != "" and project_fact_json == false and gitlab_group_id != ""
+  when: project_name != "" and (project_fact_json is defined and project_fact_json == false) and gitlab_group_id != ""
   uri:
     url: https://gitlab.com/api/v4/projects
     method: POST
@@ -43,7 +43,7 @@
     - gitlab_new
 
 - name: Gitlab* CREATE a new group named "{{ gitlab_group_name }}"
-  when: gitlab_group_name != "" and project_name == "" and group_fact_json == false
+  when: gitlab_group_name != "" and project_name == "" and (group_fact_json is defined and group_fact_json == false)
   uri:
     url: https://gitlab.com/api/v4/groups/
     method: POST
