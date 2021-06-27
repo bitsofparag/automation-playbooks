@@ -42,6 +42,7 @@
   tags:
     - gitlab_new
 
+# Open issue with this: https://gitlab.com/gitlab-org/gitlab/-/issues/244345
 - name: Gitlab* CREATE a new group named "{{ gitlab_group_name }}"
   when: gitlab_group_name != "" and project_name == "" and (group_fact_json is defined and group_fact_json == false)
   uri:
