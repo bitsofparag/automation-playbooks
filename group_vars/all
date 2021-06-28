@@ -1,5 +1,9 @@
 # Variables shared across all playbooks in all environments
 # ---------------------------------------------------------
+# ----------------------------------------------
+# Environment-related metadata
+# ----------------------------------------------
+deploy_environment: "{{ lookup('env', 'ENVIRONMENT') | default('testing') }}"
 
 # ----------------------------------------------
 # Project metadata
