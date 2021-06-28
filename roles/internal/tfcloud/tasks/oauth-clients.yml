@@ -1,5 +1,5 @@
 ---
-# tasks file for roles/internal/tfc (manage organizations)
+# tasks file for roles/internal/tfc (manage oauth clients)
 # References:
 # 1. https://www.terraform.io/docs/cloud/api/index.html#authentication
 # 2. https://www.terraform.io/docs/cloud/api/oauth-clients.html

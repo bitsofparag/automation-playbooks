@@ -1,0 +1,124 @@
+---
+# tasks file for roles/internal/tfc (manage workspaces)
+# References:
+# 1. https://www.terraform.io/docs/cloud/api/index.html#authentication
+# 2. https://www.terraform.io/docs/cloud/api/workspaces.html
+# 3. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+# 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
+
+- name: Tfc* GET list of workspaces
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_remove
+    - tfc_workspace_edit
+    - tfc_workspace_debug
+
+
+- name: Tfc* SET_FACT list of workspaces in "workspace_list"
+  set_fact:
+    cacheable: yes
+    workspace_list: "{{ response.json.data }}"
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_remove
+    - tfc_workspace_edit
+    - tfc_workspace_debug
+
+
+- name: Tfc* GET list of oauth clients
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_remove
+    - tfc_workspace_edit
+    - tfc_workspace_debug
+
+
+- name: Tfc* SET_FACT "oauth_token_id" needed for creating a new workspace
+  set_fact:
+    cacheable: yes
+    oauth_token_id: "{{ response.json.data[0].relationships['oauth-tokens'].data[0].id }}"
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_remove
+    - tfc_workspace_edit
+    - tfc_workspace_debug
+
+
+- name: Tfc* SET_FACT variables for workspace template used in POST body for workspace creation
+  when: project_git_provider == "gitlab_hosted"
+  set_fact:
+    cacheable: yes
+    workspace_name: "{{ tfc_workspace_name }}-{{ deploy_environment }}"
+    source_repo_name: "ops"
+    working_directory: "deploy/{{ tfc_workspace_name }}-{{ deploy_environment }}"
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_remove
+    - tfc_workspace_edit
+    - tfc_workspace_debug
+
+
+- name: Tfc* CREATE workspace "{{ tfc_workspace_name }}"
+  when: tfc_workspace_name is defined and tfc_workspace_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ tfc_workspace_template }}"
+    body_format: 'json'
+    status_code: [201, 200, 422]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_debug
+
+
+- name: Tfc* REMOVE workspace "{{ tfc_workspace_name }}"
+  when: tfc_workspace_name is defined and tfc_workspace_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces/{{ tfc_workspace_name }}-{{ deploy_environment }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [200, 404]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_workspace_remove
+    - tfc_workspace_debug
+
+
+- name: Tfc* SET_FACT update list of workspaces in "workspace_list"
+  when: tfc_workspace_name is defined and tfc_workspace_name != "" and ('json' in response and 'data' in response.json)
+  set_fact:
+    cacheable: yes
+    workspace_list: "{{ response.json.data }}"
+  tags:
+    - tfc_workspace_new
+    - tfc_workspace_remove
+    - tfc_workspace_edit
+    - tfc_workspace_debug

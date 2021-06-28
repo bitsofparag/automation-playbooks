@@ -1,3 +1,3 @@
 tfc_org_template: "{{ lookup('template', 'tfc_org.json.j2') }}"
-tfc_workspace_template: "{{ lookup('template', 'tfc_workspace.json.j2') }}"
 tfc_oauth_client_template: "{{ lookup('template', 'tfc_oauth_client.json.j2') }}"
+tfc_workspace_template: "{{ lookup('template', 'tfc_workspace.json.j2') }}"

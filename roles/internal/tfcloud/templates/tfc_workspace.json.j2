@@ -1,0 +1,19 @@
+{
+  "data":
+  {
+    "attributes": {
+      "name": "{{workspace_name}}",
+      "auto-apply": "true",
+      "description": "Created by Git Provider CI/CD",
+      "source-name": "Git Provider CI/CD",
+      "source-url": "https://{{project_git_provider_domain}}/{{project_team_name}}/{{source_repo_name}}",
+      "working-directory": "{{ working_directory }}",
+      "vcs-repo": {
+        "identifier": "{{project_team_name}}/{{source_repo_name}}",
+        "oauth-token-id": "{{oauth_token_id}}",
+        "branch": "{{deploy_environment}}"
+      }
+    },
+    "type":"workspaces"
+  }
+}
