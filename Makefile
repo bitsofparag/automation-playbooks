@@ -3,7 +3,7 @@ SHELL = /bin/bash
 ENVIRONMENT ?=
 
 ifeq ($(ENVIRONMENT), )
-ENVIRONMENT := development
+ENVIRONMENT := localdev
 include .env
 export
 endif
@@ -91,11 +91,12 @@ ifeq ($(PLAYBOOK), )
 endif
 	@echo "\n==> Running Ansible playbook $(PLAYBOOK).yml"
 	cd $(PROVISION_ROOT) \
-		&& ansible-playbook -i inventories/$(ENVIRONMENT)/hosts.ini \
-		playbooks/$(ENVIRONMENT)/$(PLAYBOOK).yml \
+		&& ansible-playbook -i inventory/$(ENVIRONMENT)/hosts.ini \
+		playbooks/$(PLAYBOOK).yml \
 		--tags '$(ANSIBLE_TAGS)' \
 		--limit '$(ANSIBLE_GROUPS)' \
-		--extra-vars '$(EXTRA_VARS)'
+		--extra-vars '$(EXTRA_VARS)' \
+		$(EXTRA_ARGS)
 
 
 .PHONY: clean clean-ansible

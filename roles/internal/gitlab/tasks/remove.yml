@@ -13,7 +13,7 @@
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
     method: DELETE
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 202
   tags:
     - gitlab_remove
@@ -24,7 +24,7 @@
     url: "https://gitlab.com/api/v4/groups/{{ group_fact_json['id'] }}"
     method: DELETE
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 202
   tags:
     - gitlab_remove

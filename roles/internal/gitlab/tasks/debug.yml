@@ -8,7 +8,7 @@
     body:
       search: "{{ project_name }}"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 200
   register: project_entity_exists
   tags:
@@ -48,7 +48,7 @@
     body:
       search: "{{ project_name }}"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 200
   register: project_entity_exists
   tags:
@@ -95,7 +95,7 @@
     body:
       search: "{{ gitlab_group_name }}"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 200
   register: group_entity_exists
   tags:

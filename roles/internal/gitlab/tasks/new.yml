@@ -19,7 +19,7 @@
       description: "{{ project_description }}"
       default_branch: "dev"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 201
   tags:
     - gitlab_new
@@ -37,7 +37,7 @@
       namespace_id: "{{ gitlab_group_id }}"
       default_branch: "dev"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 201
   tags:
     - gitlab_new
@@ -55,7 +55,7 @@
       visibility: "{{ gitlab_privacy }}"
       description: "{{ project_description }}"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 201
   tags:
     - gitlab_new
@@ -82,7 +82,7 @@
       branch: "dev"
       ref: "main"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [201, 400]
   ignore_errors: true
   tags:
@@ -97,7 +97,7 @@
     body:
       default_branch: "dev"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [200, 409]
   ignore_errors: true
   tags:
@@ -115,7 +115,7 @@
       push_access_level: 0
       merge_access_level: 30
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [201, 409]
   ignore_errors: true
   tags:
@@ -133,7 +133,7 @@
       color: "{{ item['color'] }}"
       description: "{{ item['description'] }}"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [201, 409]
   with_items: "{{ gitlab_project_labels }}"
   ignore_errors: true
@@ -151,7 +151,7 @@
       color: "{{ item['color'] }}"
       description: "{{ item['description'] }}"
     headers:
-      Private-Token: "{{ gitlab_token }}"
+      Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [201, 409]
   with_items: "{{ gitlab_group_labels }}"
   ignore_errors: true
