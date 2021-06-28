@@ -1,36 +1,68 @@
 # Variables shared across all playbooks in all environments
 # ---------------------------------------------------------
 
-# Project metadata: used when running tasks for a specific project
-project_namespace: "{{ lookup('env', 'PROJECT_NAMESPACE') | default('') }}"
+# ----------------------------------------------
+# Project metadata
+# ----------------------------------------------
 project_name: "{{ lookup('env', 'PROJECT_NAME') | default('') }}"
+project_namespace: "{{ lookup('env', 'PROJECT_NAMESPACE') | default('') }}"
 project_team_name: "{{ lookup('env', 'PROJECT_TEAM_NAME') | default('') }}"
 project_title: "{{ lookup('env', 'PROJECT_TITLE') | default('') }}"
 project_description: "{{ lookup('env', 'PROJECT_DESCRIPTION') | default('') }}"
 project_keywords: "{{ lookup('env', 'PROJECT_KEYWORDS') | default('') }}"
 project_author: "{{ lookup('env', 'PROJECT_AUTHOR') | default('Parag M. <admin@bitsofparag.com>') }}"
 project_author_email: "{{ lookup('env', 'PROJECT_AUTHOR_EMAIL') | default('admin@bitsofparag.com') }}"
+project_git_provider: "{{ lookup('env', 'PROJECT_GIT_PROVIDER') | default('gitlab_hosted') }}"
+project_git_provider_domain: "{{ lookup('env', 'PROJECT_GIT_PROVIDER_DOMAIN') | default('gitlab.com') }}"
+project_git_url: "{{ lookup('env', 'PROJECT_GIT_PROVIDER_DOMAIN') | default('gitlab.com') }}"
 project_license: "{{ lookup('env', 'PROJECT_LICENSE') | default('MIT') }}"
+project_privacy: "{{ lookup('env', 'PROJECT_PRIVACY') | default('private') }}"
+# Overrides
 project_domain_name: "{{ lookup('env', 'DOMAIN_NAME') | default('') }}"
 
+# ----------------------------------------------
+# Domain and DNS metadata
+# ----------------------------------------------
+domain_name: "{{ lookup('env', 'DOMAIN_NAME') | default('') }}"
 
-# Gitlab vars: used in gitlab role
-gitlab_token: "{{ lookup('env', 'GITLAB_CLI_TOKEN') }}"
+# ----------------------------------------------
+# Gitlab metadata
+# ----------------------------------------------
 gitlab_group_name: "{{ lookup('env', 'GITLAB_GROUP_NAME') | default('') }}"
 gitlab_group_id: "{{ lookup('env', 'GITLAB_GROUP_ID') }}"
+gitlab_group_description: "{{ lookup('env', 'GITLAB_GROUP_DESCRIPTION') | default('') }}"
+gitlab_user_access_token: "{{ lookup('env', 'GITLAB_USER_ACCESS_TOKEN') }}"
+# Overrides
 gitlab_project_labels: "{{ lookup('file', lookup('env', 'PWD') + '/group_vars/gitlab_labels.json') | from_json }}"
 gitlab_group_labels: "{{ lookup('file', lookup('env', 'PWD') + '/group_vars/gitlab_labels.json') | from_json }}"
 gitlab_privacy: "{{ lookup('env', 'PROJECT_PRIVACY') | default('private') }}"
 
 
-# Ops user vars
-ops_email: "{{ lookup('env', 'OPS_EMAIL') | default('admin@bitsofparag.com') }}"
-ops_user: "{{ lookup('env', 'OPS_USER') | default('ubuntu') }}"
+# ----------------------------------------------
+# Ops user metadata
+# ----------------------------------------------
+ops_email: "{{ lookup('env', 'OPS_EMAIL') | default('janedoe@example.com') }}"
+ops_user: "{{ lookup('env', 'OPS_USER') | default('ops') }}"
 ops_password: "{{ lookup('env', 'OPS_PASSWORD') }}"
 
 
-# TFCloud vars
+# ----------------------------------------------
+# TFCloud metadata
+# ----------------------------------------------
 tfc_org_name: "{{ lookup('env', 'PROJECT_NAME') | default('') }}"
 tfc_token: "{{ lookup('env', 'TFC_TOKEN') | default('') }}"
+# Overrides
+tfc_workspace_name: "{{ lookup('env', 'TFC_WORKSPACE_NAME') | default('') }}"
 
 
+
+# To add
+# DOCKER_COMPOSE_VERSION=1.29.2
+# NGINX_VERSION=1.20.1
+# NODEJS_VERSION=14.x
+# PYTHON_VERSION=3.8
+# NOMAD_VERSION=1.1.2
+# POSTGRESQL_VERSION=13
+
+# AWS_ACCESS_KEY_ID=
+# AWS_SECRET_ACCESS_KEY=

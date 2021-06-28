@@ -1,0 +1,68 @@
+---
+# tasks file for roles/internal/tfc (manage organizations)
+# References:
+# 1. https://www.terraform.io/docs/cloud/api/index.html#authentication
+# 2. https://www.terraform.io/docs/cloud/api/organizations.html
+# 3. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+# 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
+
+- name: Tfc* GET list of organizations
+  when: tfc_org_name is defined and tfc_org_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_org_new
+    - tfc_org_remove
+    - tfc_org_edit
+    - tfc_org_debug
+
+
+- name: Tfc* SET_FACT list of organizations as "org_list"
+  when: tfc_org_name is defined and tfc_org_name != ""
+  set_fact:
+    cacheable: yes
+    org_list: "{{ response.json.data }}"
+  tags:
+    - tfc_org_new
+    - tfc_org_remove
+    - tfc_org_edit
+    - tfc_org_debug
+
+
+- name: Tfc* CREATE an organization "{{ tfc_org_name }}"
+  when: tfc_org_name is defined and tfc_org_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ tfc_org_template }}"
+    return_content: yes
+    status_code: 201
+  register: response
+  tags:
+    - tfc_org_new
+    - tfc_org_debug
+
+
+- name: Tfc* SET_FACT updated list of organizations as "org_list"
+  when: tfc_org_name is defined and tfc_org_name != ""
+  set_fact:
+    cacheable: yes
+    org_list: "{{ response.json.data }}"
+  tags:
+    - tfc_org_new
+    - tfc_org_debug
+
+- name: DEBUG
+  debug:
+    var: org_list
