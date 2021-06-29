@@ -1,0 +1,148 @@
+---
+# tasks file for roles/internal/tfc (manage vars in workspaces)
+# References:
+# 1. https://www.terraform.io/docs/cloud/api/index.html#authentication
+# 2. https://www.terraform.io/docs/cloud/api/workspace-vars.html
+# 3. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+# 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
+
+- name: Tfc* GET workspace "{{ tfc_workspace_name }}"
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces/{{ tfc_workspace_name }}-{{ deploy_environment }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+    - tfc_vars_debug
+
+
+- name: Tfc* SET_FACT the ID of "{{tfc_workspace_name}}" in "workspace_id"
+  when: ('json' in response) and ('data' in response.json)
+  set_fact:
+    cacheable: yes
+    workspace_id: "{{ response.json.data.id }}"
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+    - tfc_vars_debug
+
+
+- name: Tfc* GET list of variables in workspace "{{ tfc_workspace_name }}"
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+    - tfc_vars_debug
+
+
+- name: Tfc* SET_FACT list of vars in "{{ tfc_workspace_name }}" ({{workspace_id}})
+  when: ('json' in response) and ('data' in response.json)
+  set_fact:
+    cacheable: yes
+    workspace_vars_list: "{{ response.json.data }}"
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+    - tfc_vars_debug
+
+
+# ----------------------------------------------------------
+# Remove all vars before for easier POST and PATCH operations
+- name: Tfc* DELETE all vars in workspace "{{ tfc_workspace_name }}"
+  when: workspace_vars_list is defined and (workspace_vars_list|length > 0)
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars/{{item.id}}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [201, 204, 404]
+    return_content: yes
+  with_items: "{{ workspace_vars_list }}"
+  register: response
+  tags:
+    - tfc_vars_remove
+    - tfc_vars_edit
+
+
+# -------------------------------------------
+# Tasks for adding new vars
+- name: Tfc* TEMPLATE a payload file for user's TfCloud env vars
+  when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
+  template:
+    src: "../templates/tfc_env_vars.json.j2"
+    dest: "/tmp/env_vars.payload"
+  with_items: "{{ tfc_env_vars }}"
+  tags:
+    - tfc_vars_new
+    - tfc_vars_edit
+
+
+- name: Tfc* POST the payload file as user's env vars to workspace "{{ tfc_workspace_name }}"
+  when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ item }}"
+    body_format: 'json'
+    status_code: [201, 200, 422]
+    return_content: yes
+  with_items: "{{ lookup('file', '/tmp/env_vars.payload') | from_json }}"
+  register: response
+  tags:
+    - tfc_vars_new
+    - tfc_vars_edit
+
+
+- name: Tfc* TEMPLATE a payload file for user's TfCloud terraform vars
+  when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
+  template:
+    src: "../templates/tfc_tf_vars.json.j2"
+    dest: "/tmp/tf_vars.payload"
+  with_items: "{{ tfc_tf_vars }}"
+  tags:
+    - tfc_vars_new
+    - tfc_vars_edit
+
+
+- name: Tfc* POST the payload file as user's terraform vars to workspace "{{ tfc_workspace_name }}"
+  when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ item }}"
+    body_format: 'json'
+    status_code: [201, 200, 422]
+    return_content: yes
+  with_items: "{{ lookup('file', '/tmp/tf_vars.payload') | from_json }}"
+  register: response
+  tags:
+    - tfc_vars_new
+    - tfc_vars_edit

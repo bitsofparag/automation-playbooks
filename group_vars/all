@@ -24,10 +24,12 @@ project_privacy: "{{ lookup('env', 'PROJECT_PRIVACY') | default('private') }}"
 # Overrides
 project_domain_name: "{{ lookup('env', 'DOMAIN_NAME') | default('') }}"
 
+
 # ----------------------------------------------
 # Domain and DNS metadata
 # ----------------------------------------------
 domain_name: "{{ lookup('env', 'DOMAIN_NAME') | default('') }}"
+
 
 # ----------------------------------------------
 # Gitlab metadata
@@ -49,15 +51,11 @@ ops_email: "{{ lookup('env', 'OPS_EMAIL') | default('janedoe@example.com') }}"
 ops_user: "{{ lookup('env', 'OPS_USER') | default('ops') }}"
 ops_password: "{{ lookup('env', 'OPS_PASSWORD') }}"
 
-
 # ----------------------------------------------
-# TFCloud metadata
+# AWS secrets
 # ----------------------------------------------
-tfc_org_name: "{{ lookup('env', 'PROJECT_NAME') | default('') }}"
-tfc_token: "{{ lookup('env', 'TFC_TOKEN') | default('') }}"
-# Overrides
-tfc_workspace_name: "{{ lookup('env', 'TFC_WORKSPACE_NAME') | default('') }}"
-
+aws_access_key_id: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
 
 
 # To add
@@ -67,6 +65,3 @@ tfc_workspace_name: "{{ lookup('env', 'TFC_WORKSPACE_NAME') | default('') }}"
 # PYTHON_VERSION=3.8
 # NOMAD_VERSION=1.1.2
 # POSTGRESQL_VERSION=13
-
-# AWS_ACCESS_KEY_ID=
-# AWS_SECRET_ACCESS_KEY=

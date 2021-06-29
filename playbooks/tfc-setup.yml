@@ -13,5 +13,6 @@
   connection: local
   vars_files:
     - '../group_vars/all'
+    - '../group_vars/tfc_vars'
   roles:
     - role: 'tfcloud'

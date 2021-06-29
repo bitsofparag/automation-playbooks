@@ -1,0 +1,29 @@
+{% if tfc_env_vars|length > 0 %}
+[
+{% for item in tfc_env_vars %}
+  {
+    "data": {
+{% if item.var_id is defined and item.var_id != "" %}
+      "id":"{{ item.var_id }}",
+{% endif %}
+      "type": "vars",
+      "attributes": {
+        "key": "{{ item.key }}",
+        "value": "{{ item.value }}",
+        "category": "env",
+        "hcl": "{{item.hcl | default('false')}}",
+        "sensitive": "{{item.sensitive | default('false')}}"
+      },
+      "relationships": {
+        "workspace": {
+          "data": {
+            "id": "{{workspace_id}}",
+            "type": "workspaces"
+          }
+        }
+      }
+    }
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+{% endif %}

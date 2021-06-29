@@ -1,0 +1,15 @@
+# ----------------------------------------------
+# TFCloud metadata
+# ----------------------------------------------
+tfc_org_name: "{{ lookup('env', 'PROJECT_NAME') | default('') }}"
+tfc_token: "{{ lookup('env', 'TFC_TOKEN') | default('') }}"
+# Overrides
+tfc_workspace_name: "{{ lookup('env', 'TFC_WORKSPACE_NAME') | default('') }}"
+tfc_env_vars:
+  - key: "AWS_ACCESS_KEY_ID"
+    value: "{{ aws_access_key_id }}"
+    sensitive: "true"
+  - key: "AWS_SECRET_ACCESS_KEY"
+    value: "{{ aws_secret_access_key }}"
+    sensitive: "true"
+tfc_tf_vars:
