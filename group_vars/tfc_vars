@@ -7,7 +7,7 @@ tfc_token: "{{ lookup('env', 'TFC_TOKEN') }}"
 tfc_oauth_client_id: ""
 tfc_workspace_name: ""
 tfc_module_name: ""
-tfc_module_version: "{{ tfc_module_version | default('1.0.0')"
+tfc_module_version: ""
 tfc_env_vars:
   - key: "AWS_ACCESS_KEY_ID"
     value: "{{ aws_access_key_id }}"

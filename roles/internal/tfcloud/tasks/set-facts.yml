@@ -30,6 +30,7 @@
 
 
 - name: Tfc* GET list of oauth clients
+  when: org_list is defined and (org_list|length > 0)
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
     method: GET
@@ -43,16 +44,17 @@
     - tfc_oauth_debug
 
 
-- name: Tfc* SET_FACT list of oauth clients in "oauth_client_list"
+- name: Tfc* SET_FACT list of oauth clients as "oauth_client_list"
+  when: response is defined and ('json' in response)
   set_fact:
     cacheable: yes
-    oauth_client_list: "{{ response.json.data }}"
+    oauth_client_list: "{{ response.json.data | default([]) }}"
   tags:
     - tfc_oauth_debug
 
 
 - name: Tfc* SET_FACT first oauth client ID in response data as "oauth_client_id"
-  when: tfc_oauth_client_id == "" and (oauth_client_list|length > 0)
+  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length > 0)
   set_fact:
     cacheable: yes
     oauth_client_id: "{{ oauth_client_list[0].id }}"
@@ -61,7 +63,7 @@
 
 
 - name: Tfc* SET_FACT first oauth client TOKEN in response data as "oauth_token_id"
-  when: tfc_oauth_client_id == "" and (oauth_client_list|length > 0)
+  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length > 0)
   set_fact:
     cacheable: yes
     oauth_token_id: "{{ oauth_client_list[0].relationships['oauth-tokens'].data[0].id }}"
@@ -70,7 +72,7 @@
 
 
 - name: Tfc* DEBUG display the fetched oauth client data
-  when: tfc_oauth_client_id == "" and (oauth_client_list|length > 0)
+  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length > 0)
   vars:
     msg: |
       Oauth client id: {{ oauth_client_id }}
@@ -82,6 +84,7 @@
 
 
 - name: Tfc* GET list of registry modules
+  when: org_list is defined and (org_list|length > 0)
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/registry-modules"
     method: GET
@@ -95,10 +98,11 @@
     - tfc_modules_debug
 
 
-- name: Tfc* SET_FACT list of registry modules in "modules_list"
+- name: Tfc* SET_FACT list of registry modules as "modules_list"
+  when: response is defined and 'json' in response
   set_fact:
     cacheable: yes
-    modules_list: "{{ response.json.data }}"
+    modules_list: "{{ response.json.data | default([]) }}"
   tags:
     - tfc_modules_debug
 

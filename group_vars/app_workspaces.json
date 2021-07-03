@@ -1,0 +1,39 @@
+{
+  "tfc_app_workspaces": [
+    {
+      "id": 1,
+      "name_prefix": "networking",
+      "working_directory": "deploy/networking"
+    },
+    {
+      "id": 2,
+      "name_prefix": "ecr",
+      "working_directory": "deploy/ecr"
+    },
+    {
+      "id": 3,
+      "name_prefix": "provisioner",
+      "working_directory": "deploy/provisioner"
+    },
+    {
+      "id": 4,
+      "name_prefix": "database",
+      "working_directory": "deploy/database"
+    },
+    {
+      "id": 5,
+      "name_prefix": "webservers",
+      "working_directory": "deploy/webservers"
+    },
+    {
+      "id": 6,
+      "name_prefix": "cognito-ses",
+      "working_directory": "deploy/cognito-ses"
+    },
+    {
+      "id": 7,
+      "name_prefix": "backend",
+      "working_directory": "deploy/backend"
+    }
+  ]
+}

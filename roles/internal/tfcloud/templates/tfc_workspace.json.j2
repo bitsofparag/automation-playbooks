@@ -1,19 +1,69 @@
+{% if tfc_app_workspaces is defined and tfc_app_workspaces != "" %}
+[
+  {% for item in tfc_app_workspaces %}
+  {
+    "data":
+    {
+      "attributes": {
+        "name": "{{item.name_prefix}}-{{deploy_environment}}",
+        "auto-apply": "true",
+        "description": "{{deploy_environment}} application resources in {{ item.name_prefix }}",
+        "source-name": "Git Provider",
+        "source-url": "https://{{project_git_provider_domain}}/{{project_team_name}}/{{source_repo_name}}",
+        "working-directory": "{{ item.working_directory }}",
+        "vcs-repo": {
+          "identifier": "{{project_team_name}}/{{source_repo_name}}",
+          "oauth-token-id": "{{oauth_token_id}}",
+          "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
+        }
+      },
+      "type":"workspaces"
+    }
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+]
+{% elif tfc_data_coll_workspaces is defined and tfc_data_coll_workspaces != "" %}
+[
+  {% for item in tfc_data_coll_workspaces %}
+  {
+    "data":
+    {
+      "attributes": {
+        "name": "{{item.name_prefix}}-{{deploy_environment}}",
+        "auto-apply": "true",
+        "description": "{{deploy_environment}} data-collection resources in {{ item.name_prefix }}",
+        "source-name": "Git Provider",
+        "source-url": "https://{{project_git_provider_domain}}/{{project_team_name}}/{{source_repo_name}}",
+        "working-directory": "{{ item.working_directory }}",
+        "vcs-repo": {
+          "identifier": "{{project_team_name}}/{{source_repo_name}}",
+          "oauth-token-id": "{{oauth_token_id}}",
+          "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
+        }
+      },
+      "type":"workspaces"
+    }
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+]
+{% elif tfc_workspace_name != "" %}
 {
   "data":
   {
     "attributes": {
       "name": "{{workspace_name}}",
       "auto-apply": "true",
-      "description": "Created by Git Provider CI/CD",
-      "source-name": "Git Provider CI/CD",
+      "description": "{{deploy_environment}} infra resources in {{ item.name_prefix }}",
+      "source-name": "Git Provider",
       "source-url": "https://{{project_git_provider_domain}}/{{project_team_name}}/{{source_repo_name}}",
       "working-directory": "{{ working_directory }}",
       "vcs-repo": {
         "identifier": "{{project_team_name}}/{{source_repo_name}}",
         "oauth-token-id": "{{oauth_token_id}}",
-        "branch": "{{deploy_environment}}"
+        "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
       }
     },
     "type":"workspaces"
   }
 }
+{% endif %}

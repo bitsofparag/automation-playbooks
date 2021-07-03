@@ -28,6 +28,7 @@
       Content-Type: application/vnd.api+json
       Accept: application/json
     body: "{{ tfc_org_template }}"
+    body_format: json
     return_content: yes
     status_code: 201
   register: response

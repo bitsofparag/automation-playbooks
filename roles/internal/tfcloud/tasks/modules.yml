@@ -24,10 +24,11 @@
     cacheable: yes
     provider: "aws"
     module_name: "{{ tfc_module_name }}"
-    module_version: "{{ tfc_module_version | default('1.0.0')}}"
-    oauth_token_id: "{{oauth_token_id}}"
+    module_version: "{{ tfc_module_version | default('1.0.0') }}"
+    oauth_token_id: "{{ oauth_token_id }}"
   tags:
     - tfc_modules_new
+    - tfc_modules_remove
 
 
 - name: Tfc* CREATE a VCS registry module from {{ tfc_org_name }}
@@ -40,8 +41,8 @@
       Content-Type: application/vnd.api+json
       Accept: application/json
     body: "{{ tfc_modules_vcs_template }}"
-    body_format: 'json'
-    status_code: 201
+    body_format: "json"
+    status_code: [201, 422]
     return_content: yes
   register: response
   tags:
@@ -62,6 +63,7 @@
   register: response
   tags:
     - tfc_modules_remove
+
 
 - name: Tfc* REMOVE all VCS registry modules from {{ tfc_org_name }}
   when: tfc_module_name == "" and modules_list is defined
