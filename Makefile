@@ -37,11 +37,12 @@ endef
 define RUN_PLAYBOOK_HELP
 Please enter the playbook file to run (in provision/playbooks)
 For e.g,
-		EXTRA_VARS='{"foo": "unquoted and 'quoted'"}' \
-		ANSIBLE_TAGS='users_setup,vhosts_setup,letsencrypt_setup' \
-		ENVIRONMENT='testing' \
     PLAYBOOK='webserver' \
-    ANSIBLE_GROUPS='webservers' make run-playbook
+		ANSIBLE_GROUPS='webservers' \
+		ANSIBLE_TAGS='users_setup,vhosts_setup,letsencrypt_setup' \
+		EXTRA_VARS='{"foo": "unquoted and 'quoted'"}' \
+		EXTRA_ARGS='-vvvv' \
+    make run-playbook
 
   (See Ansible playbook docs for more)
 endef
@@ -89,9 +90,13 @@ ifeq ($(PLAYBOOK), )
 	@echo "$$RUN_PLAYBOOK_HELP"
 	@exit 1
 endif
+ifeq ($(ANSIBLE_GROUPS), )
+	@echo "$$RUN_PLAYBOOK_HELP"
+	@exit 1
+endif
 	@echo "\n==> Running Ansible playbook $(PLAYBOOK).yml"
 	cd $(PROVISION_ROOT) \
-		&& ansible-playbook -i inventory/$(ENVIRONMENT)/hosts.ini \
+		&& ansible-playbook -i inventory/hosts.ini \
 		playbooks/$(PLAYBOOK).yml \
 		--tags '$(ANSIBLE_TAGS)' \
 		--limit '$(ANSIBLE_GROUPS)' \
