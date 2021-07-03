@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # TFCloud metadata
 # ----------------------------------------------
-tfc_org_name: "{{ lookup('env', 'PROJECT_NAME') | tfc_org_name }}"
+tfc_org_name: "{{ lookup('env', 'PROJECT_NAME') | default('') }}"
 tfc_token: "{{ lookup('env', 'TFC_TOKEN') }}"
 # Overrides
 tfc_oauth_client_id: ""
