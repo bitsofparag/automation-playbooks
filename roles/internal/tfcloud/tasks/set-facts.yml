@@ -1,0 +1,110 @@
+- name: Tfc* CHECK if "tfc_org_name" variable is provided
+  when: tfc_org_name is not defined or tfc_org_name == ""
+  ansible.builtin.fail:
+    msg: "Please provide an org name for all API calls. For e.g '-e tfc_org_name=foobar'"
+  tags:
+    - tfc_org_debug
+
+
+- name: Tfc* GET list of organizations
+  when: tfc_org_name is defined and tfc_org_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_org_debug
+
+
+- name: Tfc* SET_FACT list of organizations as "org_list"
+  set_fact:
+    cacheable: yes
+    org_list: "{{ response.json.data }}"
+  tags:
+    - tfc_org_debug
+
+
+- name: Tfc* GET list of oauth clients
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_oauth_debug
+
+
+- name: Tfc* SET_FACT list of oauth clients in "oauth_client_list"
+  set_fact:
+    cacheable: yes
+    oauth_client_list: "{{ response.json.data }}"
+  tags:
+    - tfc_oauth_debug
+
+
+- name: Tfc* SET_FACT first oauth client ID in response data as "oauth_client_id"
+  when: tfc_oauth_client_id == "" and (oauth_client_list|length > 0)
+  set_fact:
+    cacheable: yes
+    oauth_client_id: "{{ oauth_client_list[0].id }}"
+  tags:
+    - tfc_oauth_debug
+
+
+- name: Tfc* SET_FACT first oauth client TOKEN in response data as "oauth_token_id"
+  when: tfc_oauth_client_id == "" and (oauth_client_list|length > 0)
+  set_fact:
+    cacheable: yes
+    oauth_token_id: "{{ oauth_client_list[0].relationships['oauth-tokens'].data[0].id }}"
+  tags:
+    - tfc_oauth_debug
+
+
+- name: Tfc* DEBUG display the fetched oauth client data
+  when: tfc_oauth_client_id == "" and (oauth_client_list|length > 0)
+  vars:
+    msg: |
+      Oauth client id: {{ oauth_client_id }}
+      Oauth token id: {{ oauth_token_id }}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+  tags:
+    - tfc_oauth_debug
+
+
+- name: Tfc* GET list of registry modules
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/registry-modules"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - tfc_modules_debug
+
+
+- name: Tfc* SET_FACT list of registry modules in "modules_list"
+  set_fact:
+    cacheable: yes
+    modules_list: "{{ response.json.data }}"
+  tags:
+    - tfc_modules_debug
+
+
+- name: Tfc* DEBUG display the modules list
+  debug:
+    var: modules_list
+  tags:
+    - tfc_oauth_debug

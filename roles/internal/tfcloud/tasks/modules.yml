@@ -1,0 +1,80 @@
+---
+# tasks file for roles/internal/tfc (manage registry modules)
+# References:
+# 1. https://www.terraform.io/docs/cloud/api/index.html#authentication
+# 2. https://www.terraform.io/docs/cloud/api/modules.html
+# 3. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+# 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
+
+- name: Tfc* INCLUDE TASKS set-facts needed for managing registry modules
+  include_tasks:
+    file: "{{playbook_dir}}/../roles/internal/tfcloud/tasks/set-facts.yml"
+    apply:
+      tags:
+        - tfc_modules_new
+        - tfc_modules_remove
+  tags:
+    - tfc_modules_new
+    - tfc_modules_remove
+
+
+- name: Tfc* SET_FACT input vars for template used in POST body for registry module creation
+  when: tfc_module_name is defined and tfc_module_name != ""
+  set_fact:
+    cacheable: yes
+    provider: "aws"
+    module_name: "{{ tfc_module_name }}"
+    module_version: "{{ tfc_module_version | default('1.0.0')}}"
+    oauth_token_id: "{{oauth_token_id}}"
+  tags:
+    - tfc_modules_new
+
+
+- name: Tfc* CREATE a VCS registry module from {{ tfc_org_name }}
+  when: tfc_module_name is defined and tfc_module_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/registry-modules/vcs"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ tfc_modules_vcs_template }}"
+    body_format: 'json'
+    status_code: 201
+    return_content: yes
+  register: response
+  tags:
+    - tfc_modules_new
+
+
+- name: Tfc* REMOVE a VCS registry module from {{ tfc_org_name }}
+  when: tfc_module_name is defined and tfc_module_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/registry-modules/private/{{ tfc_org_name }}/{{ module_name }}/{{ provider }}/{{ module_version }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_modules_remove
+
+- name: Tfc* REMOVE all VCS registry modules from {{ tfc_org_name }}
+  when: tfc_module_name == "" and modules_list is defined
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/registry-modules/private/{{ tfc_org_name }}/{{ item.attributes.name }}/{{ item.attributes.provider }}/{{ item.attributes['version-statuses'][0].version }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
+  with_items: "{{ modules_list }}"
+  tags:
+    - tfc_modules_remove

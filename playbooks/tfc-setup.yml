@@ -7,6 +7,8 @@
 #   --extra-vars "pkg_manager=npm framework=nextjs cvs=gitlab"
 # Or,
 #   --extra-vars "{'pkg_manager': 'npm', 'framework': 'nextjs', 'cvs': 'gitlab'}"
+# Or,
+#   --extra-vars "@payload.json"
 
 - hosts: thispc
   gather_facts: true

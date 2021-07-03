@@ -6,32 +6,16 @@
 # 3. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
 # 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
 
-- name: Tfc* GET list of oauth clients
-  uri:
-    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ tfc_token }}"
-      Content-Type: application/vnd.api+json
-      Accept: application/json
-    return_content: yes
-  register: response
+- name: Tfc* INCLUDE TASKS set-facts needed for managing oauth clients
+  include_tasks:
+    file: "{{playbook_dir}}/../roles/internal/tfcloud/tasks/set-facts.yml"
+    apply:
+      tags:
+        - tfc_oauth_new
+        - tfc_oauth_remove
   tags:
     - tfc_oauth_new
     - tfc_oauth_remove
-    - tfc_oauth_edit
-    - tfc_oauth_debug
-
-
-- name: Tfc* SET_FACT list of oauth clients in "oauth_client_list"
-  set_fact:
-    cacheable: yes
-    oauth_client_list: "{{ response.json.data }}"
-  tags:
-    - tfc_oauth_new
-    - tfc_oauth_remove
-    - tfc_oauth_edit
-    - tfc_oauth_debug
 
 
 - name: Tfc* SET_FACT variables for oauth template used in POST body for oauth client creation
@@ -43,8 +27,6 @@
   tags:
     - tfc_oauth_new
     - tfc_oauth_remove
-    - tfc_oauth_edit
-    - tfc_oauth_debug
 
 
 - name: Tfc* CREATE an oauth client
@@ -62,15 +44,35 @@
   register: response
   tags:
     - tfc_oauth_new
-    - tfc_oauth_debug
 
 
-- name: Tfc* SET_FACT update list of oauth clients in "oauth_client_list"
-  set_fact:
-    cacheable: yes
-    oauth_client_list: "{{ response.json.data }}"
+- name: Tfc* REMOVE a user-provided oauth client
+  when: tfc_oauth_client_id != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/oauth-clients/{{ tfc_oauth_client_id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
   tags:
-    - tfc_oauth_new
     - tfc_oauth_remove
-    - tfc_oauth_edit
-    - tfc_oauth_debug
+
+
+- name: Tfc* REMOVE the default oauth client
+  when: oauth_client_id is defined and oauth_client_id != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/oauth-clients/{{ oauth_client_id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_oauth_remove

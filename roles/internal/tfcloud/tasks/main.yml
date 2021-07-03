@@ -1,4 +1,6 @@
+- include: set-facts.yml
 - include: organizations.yml
 - include: oauth-clients.yml
 - include: workspaces.yml
 - include: variables.yml
+- include: modules.yml
