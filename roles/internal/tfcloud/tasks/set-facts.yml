@@ -107,8 +107,27 @@
     - tfc_modules_debug
 
 
-- name: Tfc* DEBUG display the modules list
-  debug:
-    var: modules_list
+- name: Tfc* GET list of workspaces
+  when: org_list is defined and (org_list|length > 0)
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
   tags:
-    - tfc_oauth_debug
+    - tfc_base_workspaces_debug
+    - tfc_workspace_debug
+
+
+- name: Tfc* SET_FACT list of workspaces as "workspaces_list"
+  when: response is defined and 'json' in response
+  set_fact:
+    cacheable: yes
+    workspaces_list: "{{ response.json.data | default([]) }}"
+  tags:
+    - tfc_base_workspaces_debug
+    - tfc_workspace_debug
