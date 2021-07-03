@@ -65,12 +65,3 @@
         - gitlab_remove
   tags:
     - gitlab_remove
-
-# - name: Gitlab* DEBUG project {{ project_name }} json
-#   debug:
-#     var: project_fact_json
-#   tags:
-#     - gitlab_debug
-#     - gitlab_new
-#     - gitlab_edit
-#     - gitlab_remove
