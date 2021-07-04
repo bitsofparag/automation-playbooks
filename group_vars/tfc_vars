@@ -8,31 +8,8 @@ tfc_oauth_client_id: ""
 tfc_workspace_name: ""
 tfc_module_name: ""
 tfc_module_version: ""
-tfc_env_vars:
-  - key: "AWS_ACCESS_KEY_ID"
-    value: "{{ aws_access_key_id }}"
-    sensitive: "true"
-  - key: "AWS_SECRET_ACCESS_KEY"
-    value: "{{ aws_secret_access_key }}"
-    sensitive: "true"
-tfc_tf_vars:
-  # ecr
-  - key: "tagged_image_max_count"
-    value: 4
-  - key: "untagged_expiration_days"
-    value: 2
-  #vpc
-  - key: vpc_cidr
-    value: "192.168.0.0/16"
-  - key: azs
-    value: [""]
-  - key: "public_subnets"
-    value: ["192.168.20.0/24", "192.168.21.0/24", "192.168.22.0/24"]
-  - key: "private_subnets"
-    value: ["192.168.16.0/24", "192.168.17.0/24"]
-  - key: "database_subnets"
-    value: ["192.168.18.0/24"]
-  - key: "user_names"
-    value: ["parag.majumdar"]
-  - key: "custom_ssh_port"
-    value: 6010
+
+# The following are provided as extras from cli as json files
+# or as key=value pairs:
+# tfc_env_vars
+# tfc_tf_vars

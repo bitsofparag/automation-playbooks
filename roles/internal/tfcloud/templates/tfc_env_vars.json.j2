@@ -9,7 +9,7 @@
       "type": "vars",
       "attributes": {
         "key": "{{ item.key }}",
-        "value": "{{ item.value }}",
+        "value": "{{ lookup('env', item.key) }}",
         "category": "env",
         "hcl": "{{item.hcl | default('false')}}",
         "sensitive": "{{item.sensitive | default('false')}}"

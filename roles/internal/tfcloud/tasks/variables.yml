@@ -6,7 +6,11 @@
 # 3. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
 # 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
 
+# ----------------------------------------------------------
+# SET_FACTs before running update operations on variables
+# Note that this task file does not include "set-facts.yml" like other tasks
 - name: Tfc* GET workspace "{{ tfc_workspace_name }}"
+  when: tfc_workspace_name is defined and tfc_workspace_name != ""
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces/{{ tfc_workspace_name }}-{{ deploy_environment }}"
     method: GET
@@ -20,7 +24,6 @@
     - tfc_vars_new
     - tfc_vars_remove
     - tfc_vars_edit
-    - tfc_vars_debug
 
 
 - name: Tfc* SET_FACT the ID of "{{tfc_workspace_name}}" in "workspace_id"
@@ -36,6 +39,7 @@
 
 
 - name: Tfc* GET list of variables in workspace "{{ tfc_workspace_name }}"
+  when: workspace_id is defined
   uri:
     url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars"
     method: GET
@@ -49,7 +53,6 @@
     - tfc_vars_new
     - tfc_vars_remove
     - tfc_vars_edit
-    - tfc_vars_debug
 
 
 - name: Tfc* SET_FACT list of vars in "{{ tfc_workspace_name }}" ({{workspace_id}})
@@ -61,11 +64,10 @@
     - tfc_vars_new
     - tfc_vars_remove
     - tfc_vars_edit
-    - tfc_vars_debug
 
 
 # ----------------------------------------------------------
-# Remove all vars before for easier POST and PATCH operations
+# Remove all vars
 - name: Tfc* DELETE all vars in workspace "{{ tfc_workspace_name }}"
   when: workspace_vars_list is defined and (workspace_vars_list|length > 0)
   uri:
@@ -81,24 +83,21 @@
   register: response
   tags:
     - tfc_vars_remove
-    - tfc_vars_edit
 
 
 # -------------------------------------------
-# Tasks for adding new vars
-- name: Tfc* TEMPLATE a payload file for user's TfCloud env vars
+# Tasks for adding new env vars
+- name: Tfc* TEMPLATE the POST payload for user's TfCloud ENV VARS
   when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
-  template:
-    src: "../templates/tfc_env_vars.json.j2"
-    dest: "/tmp/env_vars.payload"
-  with_items: "{{ tfc_env_vars }}"
+  set_fact:
+    tfc_env_vars_rendered: "{{ lookup('template', 'tfc_env_vars.json.j2') }}"
   tags:
     - tfc_vars_new
     - tfc_vars_edit
 
 
-- name: Tfc* POST the payload file as user's env vars to workspace "{{ tfc_workspace_name }}"
-  when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
+- name: Tfc* POST the payload as user's ENV VARS to workspace "{{ tfc_workspace_name }}"
+  when: tfc_env_vars_rendered is defined and (tfc_env_vars_rendered|length > 0)
   uri:
     url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars"
     method: POST
@@ -110,26 +109,26 @@
     body_format: 'json'
     status_code: [201, 200, 422]
     return_content: yes
-  with_items: "{{ lookup('file', '/tmp/env_vars.payload') | from_json }}"
+  with_items: "{{ tfc_env_vars_rendered }}"
   register: response
   tags:
     - tfc_vars_new
     - tfc_vars_edit
 
 
+# -------------------------------------------
+# Tasks for adding new TF vars
 - name: Tfc* TEMPLATE a payload file for user's TfCloud terraform vars
   when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
-  template:
-    src: "../templates/tfc_tf_vars.json.j2"
-    dest: "/tmp/tf_vars.payload"
-  with_items: "{{ tfc_tf_vars }}"
+  set_fact:
+    tfc_tf_vars_rendered: "{{ lookup('template', 'tfc_tf_vars.json.j2') }}"
   tags:
     - tfc_vars_new
     - tfc_vars_edit
 
 
 - name: Tfc* POST the payload file as user's terraform vars to workspace "{{ tfc_workspace_name }}"
-  when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
+  when: tfc_tf_vars_rendered is defined and (tfc_tf_vars_rendered|length > 0)
   uri:
     url: "https://app.terraform.io/api/v2/workspaces/{{workspace_id}}/vars"
     method: POST
@@ -141,7 +140,7 @@
     body_format: 'json'
     status_code: [201, 200, 422]
     return_content: yes
-  with_items: "{{ lookup('file', '/tmp/tf_vars.payload') | from_json }}"
+  with_items: "{{ tfc_tf_vars_rendered }}"
   register: response
   tags:
     - tfc_vars_new

@@ -1,0 +1,12 @@
+{
+  "tfc_env_vars": [
+    {
+      "key": "AWS_ACCESS_KEY_ID",
+      "sensitive": "false"
+    },
+    {
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "sensitive": "true"
+    }
+  ]
+}
