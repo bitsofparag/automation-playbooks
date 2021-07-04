@@ -1,0 +1,9 @@
+---
+
+- name: Project Base* copy development .env file to an example file
+  copy:
+    content: "{{lookup('template', '../templates/.env.project.j2')}}"
+    dest: "../.env.backend"
+    force: yes
+  tags:
+    - project_new

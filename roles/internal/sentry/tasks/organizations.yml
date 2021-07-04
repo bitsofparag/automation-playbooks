@@ -1,0 +1,29 @@
+# References:
+# 1. https://docs.sentry.io/api/organizations/
+# 2. https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html
+# 3. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
+
+- name: Sentry* INCLUDE ROLE set-facts for setting variables
+  include_tasks:
+    file: "{{playbook_dir}}/../roles/internal/sentry/tasks/set-facts.yml"
+    apply:
+      tags:
+        - sentry_org_edit
+  tags:
+    - sentry_org_edit
+
+
+- name: Sentry* UPDATE an organization "{{ sentry_org_name }}"
+  when: org_slug is defined
+  uri:
+    url: "https://sentry.io/api/0/organizations/{{ org_slug }}/"
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ sentry_user_token }}"
+      Content-Type: application/json
+    body: "{{ sentry_org_template }}"
+    return_content: yes
+    status_code: 200
+  register: response
+  tags:
+    - sentry_org_edit

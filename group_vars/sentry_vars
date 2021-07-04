@@ -1,0 +1,6 @@
+# ----------------------------------------------
+# Sentry.io metadata
+# ----------------------------------------------
+sentry_user_token: "{{ lookup('env', 'SENTRY_USER_TOKEN') }}"
+sentry_org_name: ""
+sentry_project_name: ""

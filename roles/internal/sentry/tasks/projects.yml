@@ -1,0 +1,79 @@
+- name: Sentry* INCLUDE TASKS set-facts for setting variables
+  include_tasks:
+    file: "{{playbook_dir}}/../roles/internal/sentry/tasks/set-facts.yml"
+    apply:
+      tags:
+        - sentry_project_new
+        - sentry_project_remove
+        - sentry_project_edit
+  tags:
+    - sentry_project_new
+    - sentry_project_remove
+    - sentry_project_edit
+
+
+- name: Sentry* CREATE a new project in organization "{{ org_slug }}"
+  when: org_slug is defined and team_slug is defined and (sentry_project_name is defined and sentry_project_name != "")
+  uri:
+    url: "https://sentry.io/api/0/teams/{{org_slug}}/{{team_slug}}/projects/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ sentry_user_token }}"
+      Content-Type: application/json
+    body: "{{ sentry_project_template }}"
+    body_format: "json"
+    return_content: yes
+    status_code: [201, 409]
+  register: response
+  tags:
+    - sentry_project_new
+
+
+- name: Sentry* SET_FACT new {{sentry_project_name}}'s slug as "project_slug"
+  when: ('json' in response) and response.status != 409
+  set_fact:
+    cacheable: yes
+    project_slug: "{{ response.json.slug }}"
+  tags:
+    - sentry_project_new
+
+
+- name: Sentry* GET list of the newly created project's client keys
+  when: project_slug is defined
+  uri:
+    url: "https://sentry.io/api/0/projects/{{org_slug}}/{{project_slug}}/keys/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ sentry_user_token }}"
+      Content-Type: application/json
+    return_content: yes
+    status_code: [200, 409]
+  register: response
+  tags:
+    - sentry_project_new
+
+
+- name: Sentry* UPDATE .env file with {{project_slug}}'s client DSN's
+  when: project_slug is defined and ('json' in response) and response.status != 409
+  ansible.builtin.replace:
+    path: "{{ playbook_dir ~ '/../.env.backend' }}"
+    regexp: "^({{project_slug|replace('-','_')|upper}}_SENTRY_DSN=)(.*)"
+    replace: '\1{{response.json[0].dsn.public}}'
+  tags:
+    - env_file_update
+    - sentry_project_new
+
+
+- name: Sentry* REMOVE project {{ sentry_project_name }} in org "{{ org_slug }}"
+  when: org_slug is defined and team_slug is defined and (sentry_project_name is defined and project_slug != "")
+  uri:
+    url: "https://sentry.io/api/0/projects/{{org_slug}}/{{project_slug}}/"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ sentry_user_token }}"
+      Content-Type: application/json
+    return_content: yes
+    status_code: [204, 404]
+  register: response
+  tags:
+    - sentry_project_remove

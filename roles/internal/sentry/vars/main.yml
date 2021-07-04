@@ -1,0 +1,3 @@
+# These are variables that won't be changed and are used internally by the tasks
+sentry_org_template: "{{ lookup('template', 'sentry_org.json.j2') }}"
+sentry_project_template: "{{ lookup('template', 'sentry_project.json.j2') }}"

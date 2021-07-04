@@ -1,0 +1,73 @@
+- name: Sentry* GET list of organizations
+  uri:
+    url: "https://sentry.io/api/0/organizations/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ sentry_user_token }}"
+      Content-Type: application/json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - sentry_org_debug
+
+
+- name: Sentry* SET_FACT default organization in variable "org_slug"
+  when: ('json' in response) and response.json|length > 0
+  set_fact:
+    cacheable: yes
+    org_slug: "{{ response.json[0].slug }}"
+  tags:
+    - sentry_org_debug
+
+
+- name: Sentry* GET list of teams in "{{ org_slug }}"
+  when: org_slug is defined and org_slug != ""
+  uri:
+    url: "https://sentry.io/api/0/organizations/{{ org_slug }}/teams/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ sentry_user_token }}"
+      Content-Type: application/json
+      Accept: application/json
+    return_content: yes
+  register: response
+  tags:
+    - sentry_org_debug
+
+
+- name: Sentry* SET_FACT default team as "team_slug" and list of teams as "team_list"
+  when: ('json' in response) and response.json|length > 0
+  set_fact:
+    cacheable: yes
+    team_slug: "{{ response.json[0].slug }}"
+    team_list: "{{ response.json }}"
+  tags:
+    - sentry_org_debug
+
+
+- name: Sentry* SET_FACT list of projects in {{ team_slug }} as "project_list"
+  when: ('json' in response) and response.json|length > 0
+  set_fact:
+    cacheable: yes
+    project_list: "{{ team_list[0].projects }}"
+  tags:
+    - sentry_org_debug
+
+
+- name: Sentry* SET_FACT list of project slugs that match {{sentry_project_name}}
+  when: sentry_project_name != ""
+  set_fact:
+    cacheable: yes
+    project_slugs: "{{ project_list|selectattr('slug', 'equalto', sentry_project_name)|list}}"
+  tags:
+    - sentry_org_debug
+
+
+- name: Sentry* SET_FACT {{sentry_project_name}}'s slug as "project_slug"
+  when: project_slugs|length > 0
+  set_fact:
+    cacheable: yes
+    project_slug: "{{ project_slugs[0].slug }}"
+  tags:
+    - sentry_org_debug

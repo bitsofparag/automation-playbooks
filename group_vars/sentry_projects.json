@@ -1,0 +1,19 @@
+{
+  "sentry_projects": [
+    {
+      "name": "domain-api"
+    },
+    {
+      "name": "auth-api"
+    },
+    {
+      "name": "frontend"
+    },
+    {
+      "name": "data-collection"
+    },
+    {
+      "name": "data-retrieval"
+    }
+  ]
+}
