@@ -1,8 +1,8 @@
 # ------ Check if group or project exists
-- name: Gitlab* READ/DEBUG "{{ gitlab_group_name or project_name }}" json data
+- name: Gitlab* INCLUDE TASKS set facts for managing "{{ gitlab_group_name or project_name }}"
   include_role:
     name: gitlab
-    tasks_from: debug
+    tasks_from: set-facts
   tags:
     - gitlab_new
 
@@ -65,14 +65,14 @@
 - name: Gitlab* READ/DEBUG "{{ gitlab_group_name or project_name }}" json data
   include_role:
     name: gitlab
-    tasks_from: debug
+    tasks_from: set-facts
   tags:
     - gitlab_new
 
 # ==========================================================
 # ---- Tasks for after project or group is available
 - name: Gitlab* CREATE dev branch for project "{{project_name}}"
-  when: project_name != "" and project_fact_json != false
+  when: project_name != "" and project_fact_json is defined
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/repository/branches"
     method: POST
@@ -89,7 +89,7 @@
     - gitlab_new
 
 - name: Gitlab* UPDATE project {{ project_name }} set dev as default branch
-  when: project_name != "" and project_fact_json != false
+  when: project_name != "" and project_fact_json is defined
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
     method: PUT
@@ -104,7 +104,7 @@
     - gitlab_new
 
 - name: Gitlab* CREATE protected status to dev branch
-  when: project_name != "" and project_fact_json != false
+  when: project_name != "" and project_fact_json is defined
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
     method: POST
@@ -123,7 +123,7 @@
 
 
 - name: Gitlab* CREATE labels for the project (without group)
-  when: project_name != "" and project_fact_json != false and (gitlab_group_id == "")
+  when: project_fact_json is defined and project_fact_json != false
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/labels?with_counts=true"
     method: POST
@@ -135,13 +135,14 @@
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [201, 409]
-  with_items: "{{ gitlab_project_labels }}"
+  with_items: "{{ gitlab_labels }}"
   ignore_errors: true
   tags:
     - gitlab_new
 
+
 - name: Gitlab* CREATE labels for group "{{gitlab_group_name}}"
-  when: gitlab_group_name != "" and gitlab_group_id == "" and project_name == ""
+  when: (group_fact_json is defined and group_fact_json != false)
   uri:
     url: "https://gitlab.com/api/v4/groups/{{ group_fact_json['id'] }}/labels?with_counts=true"
     method: POST
@@ -153,10 +154,89 @@
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
     status_code: [201, 409]
-  with_items: "{{ gitlab_group_labels }}"
+  with_items: "{{ gitlab_labels }}"
   ignore_errors: true
   tags:
     - gitlab_new
+
+- name: Gitlab* UPDATE .env file with "{{gitlab_group_name}}" ID
+  when: group_fact_json is defined and group_fact_json != false
+  replace:
+    path: "{{ playbook_dir + '/' + item }}"
+    regexp: "^(GITLAB_GROUP_ID=)(.*)"
+    replace: '\g<1>{{group_fact_json.id}}'
+  with_items:
+    - ".env.backend"
+    - ".env.{{ project_namespace }}"
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* CREATE deploy token for the group (gitlab-deploy-token)
+  when: group_fact_json is defined and group_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/groups/{{ group_fact_json['id'] }}/deploy_tokens"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ group_fact_json['id'] }}"
+      name: "gitlab group deploy token"
+      username: "gitlab-deploy-token"
+      scopes: ["read_repository", "read_registry", "write_registry", "read_package_registry", "write_package_registry"]
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [201, 200]
+  register: response
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* UPDATE .env file with "{{gitlab_group_name}}"s new deploy token
+  when: (group_fact_json is defined and group_fact_json != false) and ('json' in response)
+  ansible.builtin.replace:
+    path: "{{ playbook_dir + '/' + item }}"
+    regexp: "^(GITLAB_GROUP_DEPLOY_TOKEN=)(.*)"
+    replace: '\1{{response.json.token}}'
+  with_items:
+    - .env.backend
+    - ".env.{{ project_namespace }}"
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* POST group deploy token PASSWORD to {{gitlab_group_name}}'s secrets
+  when: (group_fact_json is defined and group_fact_json != false) and ('json' in response)
+  uri:
+    url: "https://gitlab.com/api/v4/groups/{{group_fact_json.id}}/variables"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ group_fact_json['id'] }}"
+      key: "CI_DEPLOY_PASSWORD"
+      value: "{{ response.json.token }}"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [201, 200, 400]
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* POST group deploy token USERNAME to {{gitlab_group_name}} secrets
+  when: group_fact_json is defined and group_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/groups/{{group_fact_json.id}}/variables"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ group_fact_json['id'] }}"
+      key: "CI_DEPLOY_USER"
+      value: "gitlab-deploy-token"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [201, 200, 400]
+  tags:
+    - gitlab_new
+
 
 # ==========================================================
 # Outputs

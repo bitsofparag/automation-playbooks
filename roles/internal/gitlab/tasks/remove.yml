@@ -3,7 +3,7 @@
 - name: Gitlab* READ {{ project_name }} json
   include_role:
     name: gitlab
-    tasks_from: debug
+    tasks_from: set-facts
   tags:
     - gitlab_remove
 

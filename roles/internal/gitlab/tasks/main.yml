@@ -1,67 +1,19 @@
 ---
 # tasks file for roles/internal/gitlab
 #
-# To debug:
-# - name: Debug* gitlab_entity_exists
-#   debug:
-#     var: project_entity_exists
+# Alternate way to include role files would be:
+#
+# - name: Gitlab* INCLUDE role for new gitlab project or group and its labels
+#   when: project_name != "" or gitlab_group_name != ""
+#   include_role:
+#     name: gitlab
+#     tasks_from: new
+#     apply:
+#       tags:
+#         - gitlab_new
 #   tags:
-#     - gitlab_debug
 #     - gitlab_new
-#     - gitlab_edit
-#     - gitlab_remove
 
-- name: Gitlab* INCLUDE role for new gitlab project or group and its labels
-  when: project_name != "" or gitlab_group_name != ""
-  include_role:
-    name: gitlab
-    tasks_from: new
-    apply:
-      tags:
-        - gitlab_new
-  tags:
-    - gitlab_new
-
-- name: Gitlab* INCLUDE role for editing a gitlab project
-  when: project_name != ""
-  include_role:
-    name: gitlab
-    tasks_from: edit
-    apply:
-      tags:
-        - gitlab_edit
-  tags:
-    - gitlab_edit
-
-- name: Gitlab* INCLUDE role for removing a gitlab project
-  when: project_name != ""
-  include_role:
-    name: gitlab
-    tasks_from: remove
-    apply:
-      tags:
-        - gitlab_remove
-  tags:
-    - gitlab_remove
-
-- name: Gitlab* INCLUDE role for editing a gitlab group
-  when: gitlab_group_name != ""
-  include_role:
-    name: gitlab
-    tasks_from: edit
-    apply:
-      tags:
-        - gitlab_edit
-  tags:
-    - gitlab_edit
-
-- name: Gitlab* INCLUDE role for removing a gitlab group
-  when: gitlab_group_name != ""
-  include_role:
-    name: gitlab
-    tasks_from: remove
-    apply:
-      tags:
-        - gitlab_remove
-  tags:
-    - gitlab_remove
+- include: new.yml
+- include: edit.yml
+- include: remove.yml
