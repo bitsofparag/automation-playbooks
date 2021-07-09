@@ -1,0 +1,9 @@
+---
+
+- name: Main* Preparing a new project
+  hosts: adminpc
+  roles:
+    - gitlab
+    - tfcloud
+    - sentry
+    - papertrail

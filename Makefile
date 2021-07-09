@@ -2,16 +2,8 @@
 SHELL = /bin/bash
 ENVIRONMENT ?=
 
-ifeq ($(ENVIRONMENT), )
-ENVIRONMENT := localdev
-include .env
+include .env.$(PROJECT_NAME)
 export
-endif
-
-ifeq ($(ENVIRONMENT), production)
-include .env.production
-export
-endif
 
 PROJECT_ROOT = $(PWD)
 PROVISION_ROOT = $(PROJECT_ROOT)
@@ -61,6 +53,23 @@ export PRINT_HELP_PYSCRIPT
 # ================== Make commands ====================
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+
+
+.PHONY: create-env-var create-ops-ssh-key
+create-env-var: ## Create a new secret var in Gitlab's CI/CD
+ifeq ($(KEY), )
+	@echo "Usage: KEY=key_name VALUE=value make create-env-var"
+	@exit 1
+endif
+	$(call _create_gitlab_env_variable, $(KEY), $(VALUE))
+
+create-ops-ssh-key: ## Create a new SSH key for ops
+ifeq ($(OPS_EMAIL), )
+	@echo "Usage: OPS_USER=ops OPS_EMAIL=abc@example.com make create-ops-ssh-key"
+	@exit 1
+endif
+	ssh-keygen -t rsa -b 4096 -N '' -C $(OPS_EMAIL) -m PEM -f ~/.ssh/$(OPS_USER)-shared
+	@cat ~/.ssh/$(OPS_USER)-shared.pub
 
 
 .PHONY: create-role install-role run-playbook

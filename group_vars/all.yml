@@ -4,6 +4,7 @@
 # Environment-related metadata
 # ----------------------------------------------
 deploy_environment: "{{ lookup('env', 'ENVIRONMENT') | default('testing') }}"
+provision_root: "{{ lookup('env', 'PROVISION_ROOT') }}"
 
 # ----------------------------------------------
 # Project metadata
@@ -57,11 +58,12 @@ ops_password: "{{ lookup('env', 'OPS_PASSWORD') }}"
 aws_access_key_id: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
 aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
 
-
-# To add
-# DOCKER_COMPOSE_VERSION=1.29.2
-# NGINX_VERSION=1.20.1
-# NODEJS_VERSION=14.x
-# PYTHON_VERSION=3.8
-# NOMAD_VERSION=1.1.2
-# POSTGRESQL_VERSION=13
+# ----------------------------------------------
+# Package versions
+# ----------------------------------------------
+docker_compose_version: "{{ lookup('env', 'DOCKER_COMPOSE_VERSION') | default('1.29.2') }}"
+nginx_version: "{{ lookup('env', 'NGINX_VERSION') | default('1.20.1') }}"
+nodejs_version: "{{ lookup('env', 'NODEJS_VERSION') | default('14.x') }}"
+python_version: "{{ lookup('env', 'PYTHON_VERSION') | default('3.8') }}"
+nomad_version: "{{ lookup('env', 'NOMAD_VERSION') | default('1.1.2') }}"
+postgresql_version: "{{ lookup('env', 'POSTGRESQL_VERSION') | default('13') }}"
