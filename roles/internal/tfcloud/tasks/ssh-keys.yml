@@ -1,0 +1,139 @@
+---
+- name: Tfc* INCLUDE TASKS set-facts needed for managing ssh keys
+  include_role:
+    name: tfcloud
+    tasks_from: set-facts
+    apply:
+      tags:
+        - tfc_keys_new
+        - tfc_workspace_keys_edit
+        - tfc_keys_remove
+  tags:
+    - tfc_keys_new
+    - tfc_workspace_keys_edit
+    - tfc_keys_remove
+
+# ------------------------------------
+# Terraform cloud ssh key prepare
+# ------------------------------------
+- name: Tfc* INTERRUPT if user did not provide SSH key info
+  when: user_key_title == "" and user_key_file == ""
+  ansible.builtin.fail:
+    msg: |
+      Please provide either the filename of title of the SSH key.
+      For e.g:
+        '-e tfc_key_name=foobar-author@project.com'
+        '-e user_key_file=filename' (private file name in ~/.ssh)
+  tags:
+    - tfc_keys_new
+    - tfc_workspace_keys_edit
+    - tfc_keys_remove
+
+
+- name: Tfc* SET_FACT input vars for template used in POST body for ssh-keys
+  when: user_key_file != "" or user_key_title != ""
+  set_fact:
+    cacheable: yes
+    key_title: "{{user_key_title if user_key_title != '' else user_key_file+'-'+ops_email }}"
+    key_file: "{{lookup('file', '~/.ssh/' ~ user_key_file)}}"
+  tags:
+    - tfc_keys_new
+    - tfc_keys_remove
+    - tfc_workspace_keys_edit
+
+
+# ------------------------------------
+# Terraform cloud ssh key UPLOAD tasks
+# ------------------------------------
+# https://www.terraform.io/docs/cloud/api/ssh-keys.html
+- name: Tfc* UPLOAD private SSH key to "{{ tfc_org_name }}" (tfcloud)
+  when: tfc_org_name is defined and tfc_org_name != "" and user_key_file != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/ssh-keys"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ tfc_ssh_keys_template }}"
+    body_format: "json"
+    status_code: [201, 422]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_keys_new
+
+
+- name: Tfc* PROMPT Terraform SSH key upload result
+  when: response is defined and (response.status == 422 or response.status == 404)
+  pause:
+    prompt: |
+      Could not create SSH key in Tfcloud:
+
+      Errors:
+      {{response.json}}
+  tags:
+    - tfc_keys_new
+
+
+
+# -------------------------------------------
+# Terraform cloud ssh key ASSIGN and DELETE
+# -------------------------------------------
+# https://www.terraform.io/docs/cloud/api/workspaces.html#assign-an-ssh-key-to-a-workspace
+- name: Tfc* SET_FACT the matching ID of SSH key
+  when: ssh_keys_list is defined and ssh_keys_list|length > 0
+  set_fact:
+    cacheable: yes
+    key_id: "{{ ssh_keys_list | json_query(query) | first | default('') }}"
+  vars:
+    query: "[?attributes.name=='{{ key_title }}'].id"
+  tags:
+    - tfc_workspace_keys_edit
+    - Tfc_keys_remove
+
+- name: DEBUG
+  debug:
+    msg:
+      - "key id {{key_id}}"
+      - "key title {{key_title}}"
+  tags:
+    - tfc_workspace_keys_edit
+
+
+- name: Tfc* PATCH workspace {{tfc_workspace_name}} with user ssh key
+  when: tfc_workspace_name != "" and workspace_id != "" and key_id != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{ workspace_id }}/relationships/ssh-key"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body_format: "json"
+    body:
+      data:
+        type: "workspaces"
+        attributes:
+          id: "{{ key_id }}"
+    return_content: yes
+  tags:
+    - tfc_workspace_keys_edit
+
+
+# =======================================
+# Remove SSH key from settings
+- name: Tfc* REMOVE SSH key {{key_file or key_title}} from "{{ tfc_org_name }}" (tfcloud)
+  when: key_id is defined
+  uri:
+    url: "https://app.terraform.io/api/v2/ssh-keys/{{key_id}}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_keys_remove

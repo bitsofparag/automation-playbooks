@@ -6,10 +6,12 @@
         - sentry_project_new
         - sentry_project_remove
         - sentry_project_edit
+        - env_file_update
   tags:
     - sentry_project_new
     - sentry_project_remove
     - sentry_project_edit
+    - env_file_update
 
 
 - name: Sentry* CREATE a new project in organization "{{ org_slug }}"
@@ -38,7 +40,7 @@
     - sentry_project_new
 
 
-- name: Sentry* GET list of the newly created project's client keys
+- name: Sentry* GET list of a project's client keys (using project_slug from set-facts)
   when: project_slug is defined
   uri:
     url: "https://sentry.io/api/0/projects/{{org_slug}}/{{project_slug}}/keys/"
@@ -51,14 +53,18 @@
   register: response
   tags:
     - sentry_project_new
+    - env_file_update
 
 
 - name: Sentry* UPDATE .env file with {{project_slug}}'s client DSN's
   when: project_slug is defined and ('json' in response) and response.status != 409
   ansible.builtin.replace:
-    path: "{{ playbook_dir ~ '/../.env.backend' }}"
+    path: "{{ playbook_dir ~ '/../' ~ item }}"
     regexp: "^({{project_slug|replace('-','_')|upper}}_SENTRY_DSN=)(.*)"
     replace: '\1{{response.json[0].dsn.public}}'
+  with_items:
+    - .env.backend
+    - ".env.{{ project_namespace }}"
   tags:
     - env_file_update
     - sentry_project_new

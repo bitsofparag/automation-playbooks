@@ -1,0 +1,150 @@
+---
+# ------ Check if project exists
+- name: Gitlab* INCLUDE TASKS set facts for managing "{{ gitlab_group_name or project_name }}"
+  include_role:
+    name: gitlab
+    tasks_from: set-facts
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* CREATE a new project named "{{ project_name }}"
+  when: project_name != "" and (project_fact_json is defined and project_fact_json == false) and gitlab_group_id == ""
+  uri:
+    url: https://gitlab.com/api/v4/projects
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ project_name }}"
+      visibility: "{{ gitlab_privacy }}"
+      description: "{{ project_description }}"
+      default_branch: "dev"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: 201
+    register: response
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* CREATE a new project named "{{ project_name }}" in "{{ gitlab_group_name }}"
+  when: project_name != "" and (project_fact_json is defined and project_fact_json == false) and gitlab_group_id != ""
+  uri:
+    url: https://gitlab.com/api/v4/projects
+    method: POST
+    body_format: form-urlencoded
+    body:
+      name: "{{ project_name }}"
+      visibility: "{{ gitlab_privacy }}"
+      description: "{{ project_description }}"
+      namespace_id: "{{ gitlab_group_id }}"
+      default_branch: "dev"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: 201
+    register: response
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* INCLUDE TASKS set facts again after creation tasks"
+  include_role:
+    name: gitlab
+    tasks_from: set-facts
+  tags:
+    - gitlab_new
+
+
+# ==========================================================
+# ---- Tasks for after project or group is available
+- name: Gitlab* CREATE dev branch for project "{{project_name}}"
+  when: project_name != "" and project_fact_json is defined
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/repository/branches"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ project_fact_json['id'] }}"
+      branch: "dev"
+      ref: "main"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [201, 400]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* UPDATE project {{ project_name }} set dev as default branch
+  when: project_name != "" and project_fact_json is defined
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
+    method: PUT
+    body_format: form-urlencoded
+    body:
+      default_branch: "dev"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [200, 409]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+
+- name: Gitlab* CREATE protected status to dev branch
+  when: project_name != "" and project_fact_json is defined
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      id: "{{ project_fact_json['id'] }}"
+      name: "dev"
+      push_access_level: 0
+      merge_access_level: 30
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [201, 409]
+  ignore_errors: true
+  tags:
+    - gitlab_new
+
+
+# ==========================================================
+# Tasks for removing projects
+- name: Gitlab* DELETE project named {{ project_name }}
+  when: project_name != "" and project_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
+    method: DELETE
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: 202
+  tags:
+    - gitlab_remove
+
+
+- name: Gitlab* DELETE group named {{ group_name }}
+  when: gitlab_group_name != "" and group_fact_json != false
+  uri:
+    url: "https://gitlab.com/api/v4/groups/{{ group_fact_json['id'] }}"
+    method: DELETE
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: 202
+  tags:
+    - gitlab_remove
+
+
+# ==========================================================
+# Outputs
+- name: Gitlab* OUTPUT project json data
+  when: project_fact_json is defined and project_fact_json != false
+  copy:
+    content: "{{ project_fact_json }}"
+    dest: "/tmp/last-ansible-output"
+  tags:
+    - gitlab_debug
+    - gitlab_new
+    - gitlab_edit
+    - gitlab_remove

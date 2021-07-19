@@ -12,8 +12,8 @@
     },
     {
       "id": 3,
-      "name_prefix": "provisioner",
-      "working_directory": "deploy/provisioner"
+      "name_prefix": "manager",
+      "working_directory": "deploy/manager"
     },
     {
       "id": 4,

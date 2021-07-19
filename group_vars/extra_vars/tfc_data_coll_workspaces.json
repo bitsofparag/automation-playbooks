@@ -14,6 +14,11 @@
       "id": 3,
       "name_prefix": "iot-thing-rules",
       "working_directory": "deploy/iot-thing-rules"
+    },
+    {
+      "id":  4,
+      "name_prefix": "grafana",
+      "working_directory": "deploy/grafana"
     }
   ]
 }

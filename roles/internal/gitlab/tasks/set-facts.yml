@@ -42,14 +42,11 @@
     - gitlab_debug
 
 
-- name: Gitlab* GET project "{{ project_name }}" json by global search
-  when: (project_entity_exists is skipped) and (project_name != "" and gitlab_group_id == "")
+- name: Gitlab* GET project "{{ project_name }}" json for "{{ project_team_name }}"
+  when: (project_entity_exists is skipped) and (project_name != "" and project_team_name != "" and gitlab_group_id == "")
   uri:
-    url: https://gitlab.com/api/v4/projects
+    url: "https://gitlab.com/api/v4/users/{{project_team_name}}/projects?search={{project_name}}"
     method: GET
-    body_format: form-urlencoded
-    body:
-      search: "{{ project_name }}"
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 200
@@ -61,7 +58,7 @@
     - gitlab_debug
 
 
-- name: Gitlab* SET_FACT project "{{ project_name }}" exists in global search
+- name: Gitlab* SET_FACT project "{{ project_name }}" exists for "{{ project_team_name }}"
   when: project_entity_exists is not skipped and (project_entity_exists.json|length == 1)
   set_fact:
     cacheable: yes
@@ -72,7 +69,7 @@
     - gitlab_edit
     - gitlab_debug
 
-- name: Gitlab* SET_FACT project "{{ project_name }}" doesn't exist in global search
+- name: Gitlab* SET_FACT project "{{ project_name }}" doesn't exist for "{{ project_team_name }}"
   when: (project_entity_exists is not skipped) and (project_entity_exists.json|length == 0)
   set_fact:
     cacheable: yes
@@ -124,4 +121,24 @@
     - gitlab_new
     - gitlab_remove
     - gitlab_edit
+    - gitlab_debug
+
+
+- name: Gitlab* GET list of SSH keys for user {{ project_team_name }}
+  when: project_team_name != "" and gitlab_user_access_token != ""
+  uri:
+    url: https://gitlab.com/api/v4/user/keys
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+  register: response
+  tags:
+    - gitlab_debug
+
+
+- name: Gitlab* SET_FACT list of ssh keys as "ssh_keys_list"
+  when: response is defined and 'json' in response
+  set_fact:
+    cacheable: yes
+    ssh_keys_list: "{{ response.json | default([]) }}"
+  tags:
     - gitlab_debug

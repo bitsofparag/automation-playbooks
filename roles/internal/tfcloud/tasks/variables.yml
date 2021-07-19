@@ -8,9 +8,36 @@
 
 # ----------------------------------------------------------
 # SET_FACTs before running update operations on variables
-# Note that this task file does not include "set-facts.yml" like other tasks
+# Note that this task file does not include "set-facts.yml"
+# like other tasks
+# ----------------------------------------------------------
+- name: Tfc* INTERRUPT if "deploy_environment" variable is not provided
+  when: deploy_environment is not defined or deploy_environment == ""
+  ansible.builtin.fail:
+    msg: "Please provide the 'deploy_environment' var. For e.g '-e deploy_environment=$ENVIRONMENT'"
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+    - tfc_vars_debug
+    - tfc_vars_output
+
+
+- name: Tfc* INTERRUPT if "tfc_workspace_name" variable is not provided
+  when: tfc_workspace_name is not defined or tfc_workspace_name == ""
+  ansible.builtin.fail:
+    msg: |
+      "Please provide the 'tfc_workspace_name' (without environment)
+      For e.g '-e tfc_workspace_name=foobar'"
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+    - tfc_vars_debug
+    - tfc_vars_output
+
+
 - name: Tfc* GET workspace "{{ tfc_workspace_name }}"
-  when: tfc_workspace_name is defined and tfc_workspace_name != ""
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces/{{ tfc_workspace_name }}-{{ deploy_environment }}"
     method: GET
@@ -24,6 +51,8 @@
     - tfc_vars_new
     - tfc_vars_remove
     - tfc_vars_edit
+    - tfc_vars_debug
+    - tfc_vars_output
 
 
 - name: Tfc* SET_FACT the ID of "{{tfc_workspace_name}}" in "workspace_id"
@@ -36,6 +65,7 @@
     - tfc_vars_remove
     - tfc_vars_edit
     - tfc_vars_debug
+    - tfc_vars_output
 
 
 - name: Tfc* GET list of variables in workspace "{{ tfc_workspace_name }}"
@@ -66,8 +96,9 @@
     - tfc_vars_edit
 
 
-# ----------------------------------------------------------
-# Remove all vars
+# -----------------------------------------------
+# Task to remove all vars
+# -----------------------------------------------
 - name: Tfc* DELETE all vars in workspace "{{ tfc_workspace_name }}"
   when: workspace_vars_list is defined and (workspace_vars_list|length > 0)
   uri:
@@ -87,10 +118,11 @@
 
 # -------------------------------------------
 # Tasks for adding new env vars
+# -------------------------------------------
 - name: Tfc* TEMPLATE the POST payload for user's TfCloud ENV VARS
   when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
   set_fact:
-    tfc_env_vars_rendered: "{{ lookup('template', 'tfc_env_vars.json.j2') }}"
+    tfc_env_vars_rendered: "{{ lookup('template', 'tfc_env_vars.json.j2') | to_json}}"
   tags:
     - tfc_vars_new
     - tfc_vars_edit
@@ -118,6 +150,7 @@
 
 # -------------------------------------------
 # Tasks for adding new TF vars
+# -------------------------------------------
 - name: Tfc* TEMPLATE a payload file for user's TfCloud terraform vars
   when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
   set_fact:
@@ -141,7 +174,54 @@
     status_code: [201, 200, 422]
     return_content: yes
   with_items: "{{ tfc_tf_vars_rendered }}"
-  register: response
   tags:
     - tfc_vars_new
     - tfc_vars_edit
+
+
+# -----------------------------------------------------
+# Tasks for getting value of specified variable via API
+# -----------------------------------------------------
+- name: Tfc* INTERRUPT if "tfc_org_name" variable is not provided
+  when: tfc_org_name == ""
+  ansible.builtin.fail:
+    msg: "Unfortunately 'tfc_org_name' var is needed for this API"
+  tags:
+    - tfc_vars_debug
+
+
+- name: Tfc* GET value of specified var {{ tfc_var_name }}
+  when: tfc_var_name is defined and tfc_var_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/vars?filter%5Borganization%5D%5Bname%5D=concr&filter%5Bworkspace%5D%5Bname%5D={{tfc_workspace_name}}-{{deploy_environment}}"
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+  register: response
+  tags:
+    - tfc_vars_debug
+
+
+- name: Tfc* SET_FACT value of specified var {{ tfc_var_name }} as "var_value"
+  when: tfc_var_name is defined and tfc_var_name != ""
+  set_fact:
+    cacheable: yes
+    var_value: "{{ response.json.data | json_query(query) | first | default('') }}"
+  vars:
+    query: "[?attributes.key=='{{ tfc_var_name }}'].attributes.value"
+  tags:
+    - tfc_vars_debug
+
+
+- name: Tfc* DEBUG "var_value" for workspace var {{ tfc_var_name }}
+  when: var_value is defined
+  debug:
+    var: var_value
+  tags:
+    - tfc_vars_debug
+
+
+# -----------------------------------------------------
+# Tasks for getting value of specified variable via CLI
+# -----------------------------------------------------

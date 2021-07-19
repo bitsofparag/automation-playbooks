@@ -1,11 +1,36 @@
 {% if tfc_tf_vars|length > 0 %}
 [
 {% for item in tfc_tf_vars %}
+{% if item.key == 'environment' %}
   {
     "data": {
-{% if item.var_id is defined and item.var_id != "" %}
+    {% if item.var_id is defined and item.var_id != "" %}
       "id":"{{ item.var_id }}",
-{% endif %}
+    {% endif %}
+      "type": "vars",
+      "attributes": {
+        "key": "{{ item.key }}",
+        "value": "{{ deploy_environment }}",
+        "category": "terraform",
+        "hcl": "{{item.hcl | default('false')}}",
+        "sensitive": "{{item.sensitive | default('false')}}"
+      },
+      "relationships": {
+        "workspace": {
+          "data": {
+            "id": "{{workspace_id}}",
+            "type": "workspaces"
+          }
+        }
+      }
+    }
+  }
+{% else %}
+  {
+    "data": {
+    {% if item.var_id is defined and item.var_id != "" %}
+      "id":"{{ item.var_id }}",
+    {% endif %}
       "type": "vars",
       "attributes": {
         "key": "{{ item.key }}",
@@ -23,7 +48,7 @@
         }
       }
     }
-  }{% if not loop.last %},{% endif %}
+  }{% endif %}{% if not loop.last %},{% endif %}
 {% endfor %}
 ]
 {% endif %}

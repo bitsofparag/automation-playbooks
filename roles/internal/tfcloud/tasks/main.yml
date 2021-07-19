@@ -6,3 +6,4 @@
 - include: workspaces.yml
 - include: variables.yml
 - include: modules.yml
+- include: ssh-keys.yml

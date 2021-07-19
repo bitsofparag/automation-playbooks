@@ -1,0 +1,17 @@
+---
+
+- name: Hostnames* SET hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  tags:
+    - host_new
+
+
+- name: User* ADD hosts lookup order in host.conf
+  lineinfile: >
+    dest=/etc/host.conf
+    line="order hosts,bind"
+    state=present
+  become: true
+  tags:
+    - host_new

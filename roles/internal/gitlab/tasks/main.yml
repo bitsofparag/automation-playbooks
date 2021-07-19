@@ -14,6 +14,23 @@
 #   tags:
 #     - gitlab_new
 
-- include: new.yml
-- include: edit.yml
-- include: remove.yml
+- name: Gitlab* INCLUDE role for new gitlab project or group and its labels
+  when: gitlab_skip_group_tasks is false
+  include_role:
+    name: gitlab
+    tasks_from: groups
+    apply:
+      tags:
+        - gitlab_new
+        - gitlab_edit
+        - gitlab_remove
+        - gitlab_debug
+  tags:
+    - gitlab_new
+    - gitlab_edit
+    - gitlab_remove
+    - gitlab_debug
+
+
+- include: projects.yml
+- include: users.yml

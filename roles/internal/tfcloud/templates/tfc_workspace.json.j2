@@ -15,7 +15,8 @@
           "identifier": "{{project_team_name}}/{{source_repo_name}}",
           "oauth-token-id": "{{oauth_token_id}}",
           "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
-        }
+        },
+        "global-remote-state": "true"
       },
       "type":"workspaces"
     }
@@ -39,7 +40,8 @@
           "identifier": "{{project_team_name}}/{{source_repo_name}}",
           "oauth-token-id": "{{oauth_token_id}}",
           "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
-        }
+        },
+        "global-remote-state": "true"
       },
       "type":"workspaces"
     }
@@ -53,7 +55,7 @@
     "attributes": {
       "name": "{{workspace_name}}",
       "auto-apply": "true",
-      "description": "{{deploy_environment}} infra resources in {{ item.name_prefix }}",
+      "description": "{{deploy_environment}} infra resources in {{ workspace_name }}",
       "source-name": "Git Provider",
       "source-url": "https://{{project_git_provider_domain}}/{{project_team_name}}/{{source_repo_name}}",
       "working-directory": "{{ working_directory }}",
@@ -61,7 +63,8 @@
         "identifier": "{{project_team_name}}/{{source_repo_name}}",
         "oauth-token-id": "{{oauth_token_id}}",
         "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
-      }
+      },
+      "global-remote-state": "true"
     },
     "type":"workspaces"
   }

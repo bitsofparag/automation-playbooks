@@ -1,0 +1,98 @@
+---
+
+# ----------------------------------
+# Gitlab add SSH keys
+# ----------------------------------
+# https://docs.gitlab.com/ee/api/users.html#add-ssh-key-for-user
+
+- name: Gitlab* INTERRUPT if user did not provide SSH key info
+  when: user_key_title == "" and user_key_file == ""
+  ansible.builtin.fail:
+    msg: |
+      Please provide either the filename of title of the SSH key.
+      For e.g:
+        '-e user_key_title=foobar-author@project.com'
+        '-e user_key_file=filename' (private file name in ~/.ssh)
+  tags:
+    - gitlab_keys_new
+    - gitlab_keys_remove
+
+
+- name: Tfc* SET_FACT input vars for template used in POST body for ssh-keys
+  when: user_key_file != "" or user_key_title != ""
+  set_fact:
+    cacheable: yes
+    key_title: "{{user_key_title if user_key_title != '' else user_key_file+'-'+ops_email }}"
+    key_file: "{{lookup('file', '~/.ssh/' ~ user_key_file ~ '.pub')}}"
+  tags:
+    - gitlab_keys_new
+    - gitlab_keys_remove
+
+
+- name: Gitlab Users* UPLOAD a new SSH key in "{{ project_name }}" (gitlab)
+  when: user_key_file != "" or user_key_title != ""
+  uri:
+    url: https://gitlab.com/api/v4/user/keys
+    method: POST
+    body_format: form-urlencoded
+    body:
+      title: "{{ key_title }}"
+      key: "{{ key_file }}"
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [201, 400]
+  register: response
+  tags:
+    - gitlab_keys_new
+
+
+- name: Gitlab Users* PROMPT Gitlab SSH key upload result
+  when: response is defined and response.status == 400
+  pause:
+    prompt: |
+      Could not create SSH key: {{response.msg}}
+
+      Errors:
+      {{response.json.message}}
+  tags:
+    - gitlab_keys_new
+
+
+# ----------------------------------
+# Tasks for removing gitlab ssh keys
+# ----------------------------------
+
+- name: Gitlab* SET_FACT the matching ID of SSH key to delete
+  when: key_title is defined and ssh_keys_list is defined and ssh_keys_list|length > 0
+  set_fact:
+    cacheable: yes
+    key_id: "{{ response.json | json_query(query) | first | default('') }}"
+  vars:
+    query: "[?title=='{{ key_title }}'].id"
+  tags:
+    - gitlab_keys_remove
+
+
+- name: Gitlab* PROMPT
+  when: key_id is defined and key_id == ""
+  pause:
+    prompt: |
+      The specified key: {{key_file or key_title}} file was not found in Gitlab.
+      Therefore, there's no ssh key to remove.
+
+      Press Enter to continue:
+  tags:
+    - gitlab_keys_remove
+
+
+- name: Gitlab* REMOVE {{ key_name }} SSH key in "{{ project_name }}" (gitlab)
+  when: project_name != "" and project_team_name != "" and gitlab_user_access_token != "" and key_id != ""
+  uri:
+    url: "https://gitlab.com/api/v4/user/keys/{{ key_id }}"
+    method: DELETE
+    headers:
+      Private-Token: "{{ gitlab_user_access_token }}"
+    status_code: [204, 400]
+  register: response
+  tags:
+    - gitlab_keys_remove

@@ -8,4 +8,5 @@
 /secrets/*-shared*
 !/secrets/*.example
 **/*.payload
+**/*_ops/*
 **/*production*

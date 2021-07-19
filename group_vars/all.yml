@@ -38,6 +38,7 @@ domain_name: "{{ lookup('env', 'DOMAIN_NAME') | default('') }}"
 gitlab_group_name: "{{ lookup('env', 'GITLAB_GROUP_NAME') | default('') }}"
 gitlab_group_id: "{{ lookup('env', 'GITLAB_GROUP_ID') }}"
 gitlab_group_description: "{{ lookup('env', 'GITLAB_GROUP_DESCRIPTION') | default('') }}"
+gitlab_skip_group_tasks: false
 gitlab_user_access_token: "{{ lookup('env', 'GITLAB_USER_ACCESS_TOKEN') }}"
 # Overrides
 gitlab_project_labels: "{{ lookup('file', lookup('env', 'PWD') + '/group_vars/gitlab_labels.json') | from_json }}"
@@ -67,3 +68,10 @@ nodejs_version: "{{ lookup('env', 'NODEJS_VERSION') | default('14.x') }}"
 python_version: "{{ lookup('env', 'PYTHON_VERSION') | default('3.8') }}"
 nomad_version: "{{ lookup('env', 'NOMAD_VERSION') | default('1.1.2') }}"
 postgresql_version: "{{ lookup('env', 'POSTGRESQL_VERSION') | default('13') }}"
+
+
+# ----------------------------------------------
+# SSH keys
+# ----------------------------------------------
+user_key_title: ""
+user_key_file: ""

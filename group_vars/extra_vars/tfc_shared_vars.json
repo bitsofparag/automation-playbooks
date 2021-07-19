@@ -8,5 +8,11 @@
       "key": "AWS_SECRET_ACCESS_KEY",
       "sensitive": "true"
     }
+  ],
+  "tfc_tf_vars": [
+    {
+      "key": "environment",
+      "sensitive": "false"
+    }
   ]
 }

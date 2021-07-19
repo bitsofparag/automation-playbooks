@@ -7,8 +7,9 @@
 # 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
 
 - name: Tfc* INCLUDE TASKS set-facts needed for managing registry modules
-  include_tasks:
-    file: "{{playbook_dir}}/../roles/internal/tfcloud/tasks/set-facts.yml"
+  include_role:
+    name: tfcloud
+    tasks_from: set-facts
     apply:
       tags:
         - tfc_modules_new

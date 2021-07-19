@@ -7,26 +7,31 @@
 # 4. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
 
 - name: Tfc* INCLUDE TASKS set-facts needed for managing workspaces
-  include_tasks:
-    file: "{{playbook_dir}}/../roles/internal/tfcloud/tasks/set-facts.yml"
+  include_role:
+    name: tfcloud
+    tasks_from: set-facts
     apply:
       tags:
         - tfc_workspace_new
         - tfc_workspace_edit
         - tfc_workspace_remove
+        - tfc_workspace_debug
         - tfc_base_workspaces_new
         - tfc_base_workspaces_remove
   tags:
     - tfc_workspace_new
     - tfc_workspace_edit
     - tfc_workspace_remove
+    - tfc_workspace_debug
     - tfc_base_workspaces_new
     - tfc_base_workspaces_remove
 
 
+# --------------------------------------------
 # Tasks for managing the base workspaces
+# --------------------------------------------
 - name: Tfc* SET_FACT template variables common to all workspaces
-  when: tfc_workspace_name == "" and (tfc_app_workspaces|length > 0 or tfc_data_coll_workspaces|length > 0)
+  when: (tfc_app_workspaces is defined and tfc_app_workspaces|length > 0) or (tfc_data_coll_workspaces is defined and tfc_data_coll_workspaces|length > 0)
   set_fact:
     cacheable: yes
     source_repo_name: "ops"
@@ -36,7 +41,7 @@
 
 
 - name: Tfc* CREATE all the app workspaces
-  when: tfc_workspace_name == "" and (tfc_app_workspaces|length > 0 or tfc_data_coll_workspaces|length > 0)
+  when: (tfc_app_workspaces is defined and tfc_app_workspaces|length > 0) or (tfc_data_coll_workspaces is defined and tfc_data_coll_workspaces|length > 0)
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces"
     method: POST
@@ -54,7 +59,7 @@
 
 
 - name: Tfc* REMOVE all app workspaces
-  when: tfc_workspace_name == "" and (tfc_app_workspaces|length > 0 or tfc_data_coll_workspaces|length > 0)
+  when: (tfc_app_workspaces is defined and tfc_app_workspaces|length > 0) or (tfc_data_coll_workspaces is defined and tfc_data_coll_workspaces|length > 0)
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces/{{ item.data.attributes.name }}"
     method: DELETE
@@ -68,7 +73,9 @@
     - tfc_base_workspaces_remove
 
 
+# --------------------------------------------
 # Tasks for managing one workspace
+# --------------------------------------------
 - name: Tfc* SET_FACT variables for workspace template used in POST body for workspace api
   when: project_git_provider == "gitlab_hosted" and tfc_workspace_name != ""
   set_fact:
@@ -109,7 +116,7 @@
       Content-Type: application/vnd.api+json
       Accept: application/json
     body: "{{ tfc_workspace_template }}"
-    body_format: 'json'
+    body_format: "json"
     status_code: [201, 200, 422]
     return_content: yes
   register: response
@@ -131,3 +138,17 @@
   register: response
   tags:
     - tfc_workspace_remove
+
+
+# --------------------------------------------
+# Deployment tasks
+# --------------------------------------------
+- name: Tfc* DEPLOY workspace "{{ tfc_workspace_name }}"
+  when: tfc_workspace_name is defined and tfc_workspace_name != ""
+  pause:
+    prompt: |
+      Please trigger a run from "{{tfc_workspace_name}}-{{deploy_environment}}"
+
+      Press Enter when completed:
+  tags:
+    - tfc_workspace_deploy

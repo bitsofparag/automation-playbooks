@@ -2,11 +2,10 @@
 SHELL = /bin/bash
 ENVIRONMENT ?=
 
-include .env.$(PROJECT_NAME)
+include .env.$(PROJECT_NAMESPACE)
 export
 
-PROJECT_ROOT = $(PWD)
-PROVISION_ROOT = $(PROJECT_ROOT)
+PLAYBOOK_ROOT = $(PWD)
 
 
 ################################################
@@ -39,6 +38,20 @@ For e.g,
   (See Ansible playbook docs for more)
 endef
 
+define RUN_PACKER_HELP
+Usage: PACKER_IMAGE=foo make deploy-machine-image
+  See here for more - https://www.packer.io/docs/commands
+endef
+
+define _create_gitlab_env_variable
+export new_var="$(shell echo $1 | tr '[:lower:]' '[:upper:]')" \
+	&& curl -X POST -H "PRIVATE-TOKEN: $(PROJECT_GITLAB_USER_ACCESS_TOKEN)" \
+	--form "key=$$new_var" \
+	--form "value=$2" \
+	--form "protected=false" \
+	"https://gitlab.com/api/v4/projects/$(PROJECT_GITLAB_ID)/variables"
+endef
+
 define PRINT_HELP_PYSCRIPT
 import re, sys
 for line in sys.stdin:
@@ -55,13 +68,14 @@ help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 
-.PHONY: create-env-var create-ops-ssh-key
+.PHONY: create-env-var create-ops-ssh-key create-project-tfrc
 create-env-var: ## Create a new secret var in Gitlab's CI/CD
 ifeq ($(KEY), )
 	@echo "Usage: KEY=key_name VALUE=value make create-env-var"
 	@exit 1
 endif
-	$(call _create_gitlab_env_variable, $(KEY), $(VALUE))
+	$(call _create_gitlab_env_variable,$(KEY),$(VALUE))
+
 
 create-ops-ssh-key: ## Create a new SSH key for ops
 ifeq ($(OPS_EMAIL), )
@@ -70,6 +84,21 @@ ifeq ($(OPS_EMAIL), )
 endif
 	ssh-keygen -t rsa -b 4096 -N '' -C $(OPS_EMAIL) -m PEM -f ~/.ssh/$(OPS_USER)-shared
 	@cat ~/.ssh/$(OPS_USER)-shared.pub
+
+
+create-project-tfrc: ## Create .terraformrc file for the specified project
+ifeq ($(PROJECT_NAMESPACE), )
+	@echo "Usage: Run the following commands in succession -"
+	@echo "       make create-project-tfrc"
+	@echo "       export TF_CLI_CONFIG_FILE=$HOME/.terraformrc-$(PROJECT_NAMESPACE)"
+endif
+	@mkdir -p $(HOME)/.terraform.d/plugin-cache
+	@echo -e \
+	  credentials "app.terraform.io" {\\n\
+      token = "$(TFC_TOKEN)"\\n\
+    }\\n\
+    plugin_cache_dir = "$$HOME/.terraform.d/plugin-cache" >> $(HOME)/.terraformrc-$(PROJECT_NAMESPACE)
+	@echo "Now run: export TF_CLI_CONFIG_FILE=\$$HOME/.terraformrc-$(PROJECT_NAMESPACE)"
 
 
 .PHONY: create-role install-role run-playbook
@@ -81,7 +110,7 @@ ifeq ($(ROLE_NAME), )
 	@echo "$$CREATE_ROLE_HELP"
 	@exit 1
 endif
-	@cd $(PROVISION_ROOT) \
+	@cd $(PLAYBOOK_ROOT) \
 		&& ansible-galaxy init roles/internal/$(ROLE_NAME)
 
 
@@ -90,7 +119,7 @@ ifeq ($(ROLE_NAME), )
 	@echo "$$INSTALL_ROLE_HELP"
 	@exit 1
 endif
-	@cd $(PROVISION_ROOT) \
+	@cd $(PLAYBOOK_ROOT) \
 		&& ansible-galaxy install --roles-path=roles/external $(ROLE_NAME)
 
 
@@ -103,10 +132,9 @@ ifeq ($(ANSIBLE_GROUPS), )
 	@echo "$$RUN_PLAYBOOK_HELP"
 	@exit 1
 endif
-	@echo "\n==> Running Ansible playbook $(PLAYBOOK).yml"
-	cd $(PROVISION_ROOT) \
-		&& ansible-playbook -i inventory/hosts.ini \
-		playbooks/$(PLAYBOOK).yml \
+	@echo "==> Running Ansible playbook $(PLAYBOOK).yml"
+	cd $(PLAYBOOK_ROOT) \
+		&& ansible-playbook -i inventory/hosts.ini $(PLAYBOOK).yml \
 		--tags '$(ANSIBLE_TAGS)' \
 		--limit '$(ANSIBLE_GROUPS)' \
 		--extra-vars '$(EXTRA_VARS)' \
