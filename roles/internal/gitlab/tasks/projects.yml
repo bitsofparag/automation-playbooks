@@ -22,7 +22,7 @@
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 201
-    register: response
+  register: response
   tags:
     - gitlab_new
 
@@ -42,12 +42,12 @@
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 201
-    register: response
+  register: response
   tags:
     - gitlab_new
 
 
-- name: Gitlab* INCLUDE TASKS set facts again after creation tasks"
+- name: Gitlab* INCLUDE TASKS set facts again after creation tasks
   include_role:
     name: gitlab
     tasks_from: set-facts

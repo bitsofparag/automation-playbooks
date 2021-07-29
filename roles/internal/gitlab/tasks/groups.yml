@@ -9,9 +9,10 @@
 
 
 # Open issue with this: https://gitlab.com/gitlab-org/gitlab/-/issues/244345
+# On GitLab SaaS, you must use the GitLab UI to create groups without a parent group. You cannot use the API to do this.
 - name: Gitlab* CREATE a new group named "{{ gitlab_group_name }}"
   when: gitlab_group_name != "" and project_name == "" and (group_fact_json is defined and group_fact_json == false)
-  uri:
+  ansible.builtin.uri:
     url: https://gitlab.com/api/v4/groups
     method: POST
     body_format: form-urlencoded
@@ -23,12 +24,14 @@
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
     status_code: 201
+  register: response
+  ignore_errors: true
   tags:
     - gitlab_new
 
 
 - name: Gitlab* SET_FACT update "group_fact_json"
-  when: response.status == 201 and ('json' in response) and response.json.id is defined
+  when: response is not skipped and response.status == 201 and ('json' in response)
   set_fact:
     cacheable: yes
     group_fact_json: "{{ response.json }}"
@@ -36,7 +39,16 @@
     - gitlab_new
 
 
-# TODO To do the same for projects:
+- name: Gitlab* INCLUDE TASKS set facts again after creation tasks
+  when: response is skipped
+  include_role:
+    name: gitlab
+    tasks_from: set-facts
+  tags:
+    - gitlab_new
+
+
+# TODO do the same for projects:
 # "https://gitlab.com/api/v4/projects/\{\{project_fact_json['id'] \}\}/labels?with_counts=true"
 - name: Gitlab* CREATE labels for group "{{gitlab_group_name}}"
   when: (group_fact_json is defined and group_fact_json != false)
