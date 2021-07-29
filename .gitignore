@@ -10,3 +10,4 @@
 **/*.payload
 **/*_ops/*
 **/*production*
+.python-version
