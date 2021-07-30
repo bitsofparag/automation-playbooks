@@ -6,6 +6,7 @@
     tasks_from: set-facts
   tags:
     - gitlab_new
+    - gitlab_remove
 
 
 - name: Gitlab* CREATE a new project named "{{ project_name }}"
@@ -116,18 +117,6 @@
   when: project_name != "" and project_fact_json != false
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
-    method: DELETE
-    headers:
-      Private-Token: "{{ gitlab_user_access_token }}"
-    status_code: 202
-  tags:
-    - gitlab_remove
-
-
-- name: Gitlab* DELETE group named {{ group_name }}
-  when: gitlab_group_name != "" and group_fact_json != false
-  uri:
-    url: "https://gitlab.com/api/v4/groups/{{ group_fact_json['id'] }}"
     method: DELETE
     headers:
       Private-Token: "{{ gitlab_user_access_token }}"
