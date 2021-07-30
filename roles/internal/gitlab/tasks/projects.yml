@@ -59,7 +59,7 @@
 # ==========================================================
 # ---- Tasks for after project or group is available
 - name: Gitlab* CREATE dev branch for project "{{project_name}}"
-  when: project_name != "" and project_fact_json is defined
+  when: project_name != "" and project_fact_json is defined and gitlab_set_dev_branch is true
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/repository/branches"
     method: POST
@@ -77,7 +77,7 @@
 
 
 - name: Gitlab* UPDATE project {{ project_name }} set dev as default branch
-  when: project_name != "" and project_fact_json is defined
+  when: project_name != "" and project_fact_json is defined and gitlab_set_dev_branch is true
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}"
     method: PUT
@@ -93,7 +93,7 @@
 
 
 - name: Gitlab* CREATE protected status to dev branch
-  when: project_name != "" and project_fact_json is defined
+  when: project_name != "" and project_fact_json is defined and gitlab_set_dev_branch is true
   uri:
     url: "https://gitlab.com/api/v4/projects/{{ project_fact_json['id'] }}/protected_branches"
     method: POST
@@ -131,7 +131,7 @@
   when: project_fact_json is defined and project_fact_json != false
   copy:
     content: "{{ project_fact_json }}"
-    dest: "/tmp/last-ansible-output"
+    dest: "/tmp/{{project_fact_json['name']}}.json"
   tags:
     - gitlab_debug
     - gitlab_new

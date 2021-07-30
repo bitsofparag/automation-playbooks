@@ -44,6 +44,7 @@ gitlab_user_access_token: "{{ lookup('env', 'GITLAB_USER_ACCESS_TOKEN') }}"
 gitlab_project_labels: "{{ lookup('file', lookup('env', 'PWD') + '/group_vars/gitlab_labels.json') | from_json }}"
 gitlab_group_labels: "{{ lookup('file', lookup('env', 'PWD') + '/group_vars/gitlab_labels.json') | from_json }}"
 gitlab_privacy: "{{ lookup('env', 'PROJECT_PRIVACY') | default('private') }}"
+gitlab_set_dev_branch: true
 
 
 # ----------------------------------------------
