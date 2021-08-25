@@ -36,7 +36,8 @@
     system: no
     createhome: yes
     home: "/home/{{ ops_user }}"
-    password: "{{ ops_password }}"
+    password: "{{ lookup('password', '/tmp/ops_password chars=ascii_letters,digits,punctuation') }}"
+    priv: "{{ client }}_{{ tier }}_{{ role }}.*:ALL"
   become: true
   tags:
     - user_new
