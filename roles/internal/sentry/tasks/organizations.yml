@@ -4,8 +4,9 @@
 # 3. https://docs.ansible.com/ansible/latest/modules/set_fact_module.html#examples
 
 - name: Sentry* INCLUDE ROLE set-facts for setting variables
-  include_tasks:
-    file: "{{playbook_dir}}/../roles/internal/sentry/tasks/set-facts.yml"
+  include_role:
+    name: sentry
+    tasks_from: set-facts
     apply:
       tags:
         - sentry_org_edit
