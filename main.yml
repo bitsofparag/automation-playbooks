@@ -1,5 +1,11 @@
 ---
 
+- name: Main* Provisioning machine images
+  hosts: packer
+  roles:
+    - user
+    - hostnames
+
 - name: Main* Preparing a new project
   hosts: adminpc
   roles:

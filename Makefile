@@ -100,6 +100,14 @@ endif
     plugin_cache_dir = "$$HOME/.terraform.d/plugin-cache" >> $(HOME)/.terraformrc-$(PROJECT_NAMESPACE)
 	@echo "Now run: export TF_CLI_CONFIG_FILE=\$$HOME/.terraformrc-$(PROJECT_NAMESPACE)"
 
+.PHONY: deploy-machine-image
+deploy-machine-image:
+ifeq ($(PROVISION_ROOT), )
+	@echo "Usage: Run the following commands -"
+	@echo "       PROVISION_ROOT=\$PWD make deploy-machine-image"
+endif
+	@packer build images/webserver.pkr.hcl
+
 
 .PHONY: create-role install-role run-playbook
 ################################################
