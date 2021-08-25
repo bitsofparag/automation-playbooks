@@ -2,9 +2,9 @@
   "data": {
     "attributes": {
       "vcs-repo": {
-        "identifier":"{{project_team_name}}/terraform-{{provider}}-{{module_name}}",
+        "identifier":"{{gitlab_group_name or project_team_name}}/terraform-{{provider}}-{{module_name}}",
         "oauth-token-id":"{{oauth_token_id}}",
-        "display_identifier":"{{project_team_name}}/terraform-{{provider}}-{{module_name}}"
+        "display_identifier":"{{gitlab_group_name or project_team_name}}/terraform-{{provider}}-{{module_name}}"
       }
     },
     "type":"registry-modules"
