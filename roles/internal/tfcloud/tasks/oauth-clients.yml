@@ -19,61 +19,17 @@
     - tfc_oauth_remove
 
 
-- name: Tfc* SET_FACT variables for oauth template used in POST body for oauth client creation
-  when: project_git_provider == "gitlab_hosted"
-  set_fact:
-    cacheable: yes
-    project_git_provider_api_url: "https://{{project_git_provider_domain}}/api/v4"
-    project_git_provider_access_token: "{{gitlab_user_access_token}}"
-  tags:
-    - tfc_oauth_new
-    - tfc_oauth_remove
-
-
-- name: Tfc* CREATE an oauth client
-  uri:
-    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ tfc_token }}"
-      Content-Type: application/vnd.api+json
-      Accept: application/json
-    body: "{{ tfc_oauth_client_template }}"
-    body_format: 'json'
-    status_code: 201
-    return_content: yes
-  register: response
+- name: Tfc* INCLUDE TASK create oauth_clients for git providers
+  when: project_git_providers|length > 0
+  include_tasks: oauth-client.yml
+  loop: "{{project_git_providers}}"
   tags:
     - tfc_oauth_new
 
 
-- name: Tfc* REMOVE a user-provided oauth client
-  when: tfc_oauth_client_id != ""
-  uri:
-    url: "https://app.terraform.io/api/v2/oauth-clients/{{ tfc_oauth_client_id }}"
-    method: DELETE
-    headers:
-      Authorization: "Bearer {{ tfc_token }}"
-      Content-Type: application/vnd.api+json
-      Accept: application/json
-    status_code: [204, 404]
-    return_content: yes
-  register: response
-  tags:
-    - tfc_oauth_remove
-
-
-- name: Tfc* REMOVE the default oauth client
-  when: oauth_client_id is defined and oauth_client_id != ""
-  uri:
-    url: "https://app.terraform.io/api/v2/oauth-clients/{{ oauth_client_id }}"
-    method: DELETE
-    headers:
-      Authorization: "Bearer {{ tfc_token }}"
-      Content-Type: application/vnd.api+json
-      Accept: application/json
-    status_code: [204, 404]
-    return_content: yes
-  register: response
+- name: Tfc* INCLUDE TASK remove oauth_clients
+  when: oauth_client_list|length > 0
+  include_tasks: oauth-client.yml
+  loop: "{{oauth_client_list}}"
   tags:
     - tfc_oauth_remove

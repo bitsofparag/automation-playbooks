@@ -5,6 +5,7 @@
     msg: "Please provide an org name for all API calls. For e.g '-e tfc_org_name=foobar'"
 
 
+# Get list of organizations
 - name: Tfc* GET list of organizations
   when: tfc_org_name is defined and tfc_org_name != ""
   uri:
@@ -24,6 +25,7 @@
     org_list: "{{ response.json.data }}"
 
 
+# Get list of oauth clients
 - name: Tfc* GET list of oauth clients
   when: org_list is defined and (org_list|length > 0)
   uri:
@@ -44,30 +46,48 @@
     oauth_client_list: "{{ response.json.data | default([]) }}"
 
 
+- name: Tfc* DEBUG display the (first) fetched oauth client data
+  when: oauth_client_list is defined
+  vars:
+    msg: |
+      Oauth client ids: {{ oauth_client_list }}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+
+
+# default oauth client settings
 - name: Tfc* SET_FACT first oauth client ID in response data as "oauth_client_id"
-  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length > 0)
+  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length == 1)
   set_fact:
     cacheable: yes
     oauth_client_id: "{{ oauth_client_list[0].id }}"
 
 
 - name: Tfc* SET_FACT first oauth client TOKEN in response data as "oauth_token_id"
-  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length > 0)
+  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length == 1)
   set_fact:
     cacheable: yes
     oauth_token_id: "{{ oauth_client_list[0].relationships['oauth-tokens'].data[0].id }}"
 
 
-- name: Tfc* DEBUG display the fetched oauth client data
-  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length > 0)
+# user-provided oauth client settings
+- name: Tfc* SET_FACT user-provided oauth client ID as "oauth_client_id"
+  when: tfc_oauth_client_id != ""
+  set_fact:
+    cacheable: yes
+    oauth_client_id: "{{ tfc_oauth_client_id }}"
+
+
+- name: Tfc* SET_FACT extract TOKEN from user-provided oauth client ID as "oauth_token_id"
+  when: tfc_oauth_client_id != ""
+  set_fact:
+    cacheable: yes
+    oauth_token_id: "{{ oauth_client_list | json_query(query) | first | default('') }}"
   vars:
-    msg: |
-      Oauth client id: {{ oauth_client_id }}
-      Oauth token id: {{ oauth_token_id }}
-  debug:
-    msg: "{{ msg.split('\n') }}"
+    query: "[?id=='{{ tfc_oauth_client_id }}'].relationships['oauth-tokens'].data[0].id"
 
 
+# List of SSH keys
 - name: Tfc* GET list of ssh-keys for this user
   when: org_list is defined and (org_list|length > 0)
   uri:

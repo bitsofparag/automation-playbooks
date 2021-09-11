@@ -6,6 +6,7 @@
 deploy_environment: "{{ lookup('env', 'ENVIRONMENT') | default('testing') }}"
 provision_root: "{{ lookup('env', 'PROVISION_ROOT') }}"
 
+
 # ----------------------------------------------
 # Project metadata
 # ----------------------------------------------
@@ -17,9 +18,7 @@ project_description: "{{ lookup('env', 'PROJECT_DESCRIPTION') | default('') }}"
 project_keywords: "{{ lookup('env', 'PROJECT_KEYWORDS') | default('') }}"
 project_author: "{{ lookup('env', 'PROJECT_AUTHOR') | default('Parag M. <admin@bitsofparag.com>') }}"
 project_author_email: "{{ lookup('env', 'PROJECT_AUTHOR_EMAIL') | default('admin@bitsofparag.com') }}"
-project_git_provider: "{{ lookup('env', 'PROJECT_GIT_PROVIDER') | default('gitlab_hosted') }}"
-project_git_provider_domain: "{{ lookup('env', 'PROJECT_GIT_PROVIDER_DOMAIN') | default('gitlab.com') }}"
-project_git_url: "{{ lookup('env', 'PROJECT_GIT_PROVIDER_DOMAIN') | default('gitlab.com') }}"
+project_git_providers: "{{ lookup('env', 'PROJECT_GIT_PROVIDERS') | default(['gitlab_hosted']) }}"
 project_license: "{{ lookup('env', 'PROJECT_LICENSE') | default('MIT') }}"
 project_privacy: "{{ lookup('env', 'PROJECT_PRIVACY') | default('private') }}"
 # Overrides
@@ -48,17 +47,25 @@ gitlab_set_dev_branch: true
 
 
 # ----------------------------------------------
+# Github metadata
+# ----------------------------------------------
+github_user_access_token: "{{ lookup('env', 'GITHUB_USER_ACCESS_TOKEN') }}"
+
+
+# ----------------------------------------------
 # Ops user metadata
 # ----------------------------------------------
 ops_email: "{{ lookup('env', 'OPS_EMAIL') | default('janedoe@example.com') }}"
 ops_user: "{{ lookup('env', 'OPS_USER') | default('ops') }}"
 ops_password: "{{ lookup('env', 'OPS_PASSWORD') }}"
 
+
 # ----------------------------------------------
 # AWS secrets
 # ----------------------------------------------
 aws_access_key_id: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
 aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+
 
 # ----------------------------------------------
 # Package versions

@@ -1,0 +1,72 @@
+---
+
+- name: Tfc* SET_FACT gitlab variables for oauth template used in POST body for oauth client creation
+  when: item == "gitlab_hosted"
+  set_fact:
+    cacheable: yes
+    item_project_git_provider: "{{item}}"
+    item_project_git_provider_domain: "gitlab.com"
+    item_project_git_provider_api_url: "https://gitlab.com/api/v4"
+    item_project_git_provider_access_token: "{{gitlab_user_access_token}}"
+  tags:
+    - tfc_oauth_new
+
+
+- name: Tfc* SET_FACT github variables for oauth template used in POST body for oauth client creation
+  when: item == "github"
+  set_fact:
+    cacheable: yes
+    item_project_git_provider: "{{item}}"
+    item_project_git_provider_domain: "github.com"
+    item_project_git_provider_api_url: "https://api.github.com"
+    item_project_git_provider_access_token: "{{github_user_access_token}}"
+  tags:
+    - tfc_oauth_new
+
+
+- name: Tfc* CREATE an oauth client
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ tfc_oauth_client_template }}"
+    body_format: 'json'
+    status_code: 201
+    return_content: yes
+  register: response
+  tags:
+    - tfc_oauth_new
+
+
+- name: Tfc* REMOVE {{item.attributes['service-provider']}} oauth client (from list)
+  uri:
+    url: "https://app.terraform.io/api/v2/oauth-clients/{{item.id}}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_oauth_remove
+
+
+- name: Tfc* REMOVE a user-provided oauth client (by id)
+  when: tfc_oauth_client_id != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/oauth-clients/{{ tfc_oauth_client_id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    status_code: [204, 404]
+    return_content: yes
+  register: response
+  tags:
+    - tfc_oauth_remove
