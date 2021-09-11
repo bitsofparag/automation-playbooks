@@ -64,7 +64,7 @@ aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
 # Package versions
 # ----------------------------------------------
 docker_compose_version: "{{ lookup('env', 'DOCKER_COMPOSE_VERSION') | default('1.29.2') }}"
-nginx_version: "{{ lookup('env', 'NGINX_VERSION') | default('1.20.1') }}"
+nginx_version: "{{ lookup('env', 'NGINX_VERSION') | default('1.21.0') }}"
 nodejs_version: "{{ lookup('env', 'NODEJS_VERSION') | default('14.x') }}"
 python_version: "{{ lookup('env', 'PYTHON_VERSION') | default('3.8') }}"
 nomad_version: "{{ lookup('env', 'NOMAD_VERSION') | default('1.1.2') }}"
