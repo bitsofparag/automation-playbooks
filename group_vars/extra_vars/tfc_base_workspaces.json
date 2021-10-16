@@ -1,0 +1,33 @@
+{
+  "tfc_base_workspaces": [
+    {
+      "id": 1,
+      "name_prefix": "networking",
+      "git_provider": "gitlab.com",
+      "source_repo_name": "ops",
+      "working_directory": "deploy/networking"
+    },
+    {
+      "id": 2,
+      "name_prefix": "data-collection",
+      "git_provider": "gitlab.com",
+      "source_repo_name": "ops",
+      "working_directory": "deploy/data-collection"
+    },
+    {
+      "id":  3,
+      "name_prefix": "grafana",
+      "git_provider": "github.com",
+      "git_user": "bitsofparag",
+      "source_repo_name": "make-me-grafana",
+      "working_directory": "/"
+    },
+    {
+      "id": 4,
+      "name_prefix": "backend",
+      "git_provider": "gitlab.com",
+      "source_repo_name": "ops",
+      "working_directory": "deploy/backend"
+    }
+  ]
+}

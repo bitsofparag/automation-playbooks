@@ -11,7 +11,6 @@ tfc_module_version: ""
 
 # The following are provided as extras from cli as json files
 # or as key=value pairs:
-# tfc_app_workspaces
-# tfc_data_coll_workspaces
+# tfc_base_workspaces
 # tfc_env_vars
 # tfc_tf_vars
