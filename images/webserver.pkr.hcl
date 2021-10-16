@@ -169,22 +169,38 @@ build {
     scripts          = ["${var.provision_root}/scripts/install/install-ansible.sh"]
   }
 
-  provisioner "ansible" {
+  provisioner "file" {
     pause_before     = "5s"
-    user = "ubuntu"
+    source = var.provision_root
+    destination = "/tmp/packer-ansible"
+  }
+
+
+  provisioner "ansible-local" {
+    pause_before     = "5s"
     playbook_file     = "${var.provision_root}/main.yml"
-    inventory_directory = "${var.provision_root}/inventory"
-    roles_path = "${var.provision_root}/roles/internal"
+    inventory_file = "${var.provision_root}/inventory/hosts.ini"
+    group_vars = "${var.provision_root}/group_vars"
     extra_arguments = [
-      "--extra-vars", "ops_user=${var.ops_user} ops_email=${var.ops_email} ops_password=${var.ops_password}",
+      "--limit", "packer",
+      "--extra-vars", "'ops_user=${var.ops_user} ops_email=${var.ops_email}'",
+      "-vvv",
       "--tags", "user_new"
     ]
+    staging_directory = "/tmp/packer-ansible"
+    clean_staging_directory = true
   }
 
   provisioner "shell" {
     execute_command = "chmod +x {{ .Path }}; sudo {{ .Vars }} {{ .Path }}"
     pause_before    = "5s"
     scripts         = ["${var.provision_root}/scripts/post-install/cleanup.sh"]
+  }
+
+  provisioner "shell" {
+    execute_command = "chmod +x {{ .Path }}; sudo {{ .Vars }} {{ .Path }}"
+    pause_before    = "5s"
+    scripts         = ["${var.provision_root}/scripts/post-install/remove-ansible.sh"]
   }
 
 }
