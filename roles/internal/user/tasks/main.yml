@@ -4,8 +4,7 @@
 # 1. https://docs.ansible.com/ansible/2.5/modules/user_module.html
 
 - name: User* CHECK the ops user already exists
-  command: grep {{ ops_user }} /etc/passwd
-  register: ops_user_exists
+  command: id -u {{ ops_user }} 2> /dev/null
   ignore_errors: true
   changed_when: false
   become: true
@@ -37,7 +36,6 @@
     createhome: yes
     home: "/home/{{ ops_user }}"
     password: "{{ lookup('password', '/tmp/ops_password chars=ascii_letters,digits,punctuation') }}"
-    priv: "{{ client }}_{{ tier }}_{{ role }}.*:ALL"
   become: true
   tags:
     - user_new

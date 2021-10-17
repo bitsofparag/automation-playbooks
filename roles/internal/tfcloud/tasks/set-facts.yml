@@ -5,6 +5,7 @@
     msg: "Please provide an org name for all API calls. For e.g '-e tfc_org_name=foobar'"
 
 
+# -------------------------
 # Get list of organizations
 - name: Tfc* GET list of organizations
   when: tfc_org_name is defined and tfc_org_name != ""
@@ -25,6 +26,7 @@
     org_list: "{{ response.json.data }}"
 
 
+# -------------------------
 # Get list of oauth clients
 - name: Tfc* GET list of oauth clients
   when: org_list is defined and (org_list|length > 0)
@@ -119,7 +121,8 @@
     oauth_token_id: "{{ tfc_oauth_client_id }}"
 
 
-# List of SSH keys
+# ----------------------------------
+# Set list of SSH keys
 - name: Tfc* GET list of ssh-keys for this user
   when: org_list is defined and (org_list|length > 0)
   uri:
@@ -140,6 +143,8 @@
     ssh_keys_list: "{{ response.json.data | default([]) }}"
 
 
+# ----------------------------------
+# Set list of registry modules
 - name: Tfc* GET list of registry modules
   when: org_list is defined and (org_list|length > 0)
   uri:
@@ -160,6 +165,8 @@
     modules_list: "{{ response.json.data | default([]) }}"
 
 
+# ----------------------------------
+# Set list of workspaces
 - name: Tfc* GET list of workspaces
   when: org_list is defined and (org_list|length > 0)
   uri:
