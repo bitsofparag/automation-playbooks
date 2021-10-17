@@ -46,45 +46,77 @@
     oauth_client_list: "{{ response.json.data | default([]) }}"
 
 
-- name: Tfc* DEBUG display the (first) fetched oauth client data
-  when: oauth_client_list is defined
-  vars:
-    msg: |
-      Oauth client ids: {{ oauth_client_list }}
-  debug:
-    msg: "{{ msg.split('\n') }}"
+# - name: Tfc* DEBUG display the json data of fetched oauth client list
+#   when: oauth_client_list is defined
+#   vars:
+#     msg: |
+#       Oauth client ids: {{ oauth_client_list }}
+#   debug:
+#     msg: "{{ msg.split('\n\n') }}"
 
 
-# default oauth client settings
-- name: Tfc* SET_FACT first oauth client ID in response data as "oauth_client_id"
-  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length == 1)
+# -----------------------------
+# Set (auto) oauth_client_id and its oauth_token_id
+- name: Tfc* SET_FACT only oauth client ID as "oauth_client_id" (oauth_client_list has one item)
+  when: tfc_oauth_token_id == "" and (oauth_client_list is defined and oauth_client_list|length == 1)
   set_fact:
     cacheable: yes
     oauth_client_id: "{{ oauth_client_list[0].id }}"
 
 
-- name: Tfc* SET_FACT first oauth client TOKEN in response data as "oauth_token_id"
-  when: tfc_oauth_client_id == "" and (oauth_client_list is defined and oauth_client_list|length == 1)
+- name: Tfc* SET_FACT only oauth client TOKEN as "oauth_token_id" (oauth_client_list has one item)
+  when: tfc_oauth_token_id == "" and (oauth_client_list is defined and oauth_client_list|length == 1)
   set_fact:
     cacheable: yes
     oauth_token_id: "{{ oauth_client_list[0].relationships['oauth-tokens'].data[0].id }}"
 
 
-# user-provided oauth client settings
-- name: Tfc* SET_FACT user-provided oauth client ID as "oauth_client_id"
-  when: tfc_oauth_client_id != ""
+# ----------------------------------
+# Set (user-provided) oauth_client_id and its oauth_token_id
+- name: Tfc* GET details of oauth token id (user provided)
+  when: tfc_oauth_token_id != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/oauth-tokens/{{ tfc_oauth_token_id }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+
+- name: DEBUG
+  debug:
+    var: response
+
+- name: Tfc* SET_FACT oauth_client_id from the details of oauth token id (user provided)
+  when: tfc_oauth_token_id != "" and (response is defined and ('json' in response))
   set_fact:
     cacheable: yes
-    oauth_client_id: "{{ tfc_oauth_client_id }}"
+    oauth_client_id: "{{ response.json.data.relationships['oauth-client'].data.id | default('') }}"
+    oauth_token_id: "{{ tfc_oauth_token_id }}"
 
 
-- name: Tfc* SET_FACT extract TOKEN from user-provided oauth client ID as "oauth_token_id"
+# ----------------------------------
+# Set (user-provided) oauth_client_id and its oauth_token_id
+- name: Tfc* GET details of oauth client id (user-provided)
   when: tfc_oauth_client_id != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/oauth-clients/{{ tfc_oauth_client_id }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    return_content: yes
+  register: response
+
+- name: Tfc* SET_FACT oauth_token_id from the details of user provided oauth client id
+  when: tfc_oauth_client_id != "" and (response is defined and ('json' in response))
   set_fact:
     cacheable: yes
-    oauth_token_id: "{{ oauth_client_list | json_query(query) | first | default('') }}"
-  vars:
-    query: "[?id=='{{ tfc_oauth_client_id }}'].relationships['oauth-tokens'].data[0].id"
+    oauth_client_id: "{{ response.json.data[0].relationships['oauth-tokens'].data[0].id | default('') }}"
+    oauth_token_id: "{{ tfc_oauth_client_id }}"
 
 
 # List of SSH keys

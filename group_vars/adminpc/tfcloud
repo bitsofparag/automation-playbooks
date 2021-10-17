@@ -5,6 +5,7 @@ tfc_org_name: "{{ lookup('env', 'TFC_ORG_NAME') | default('') }}"
 tfc_token: "{{ lookup('env', 'TFC_TOKEN') }}"
 # Overrides
 tfc_oauth_client_id: ""
+tfc_oauth_token_id: ""
 tfc_workspace_name: ""
 tfc_module_name: ""
 tfc_module_version: ""

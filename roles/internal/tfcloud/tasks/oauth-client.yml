@@ -42,6 +42,7 @@
 
 
 - name: Tfc* REMOVE {{item.attributes['service-provider']}} oauth client (from list)
+  when: tfc_oauth_token_id == ""
   uri:
     url: "https://app.terraform.io/api/v2/oauth-clients/{{item.id}}"
     method: DELETE
@@ -57,9 +58,9 @@
 
 
 - name: Tfc* REMOVE a user-provided oauth client (by id)
-  when: tfc_oauth_client_id != ""
+  when: tfc_oauth_token_id != ""
   uri:
-    url: "https://app.terraform.io/api/v2/oauth-clients/{{ tfc_oauth_client_id }}"
+    url: "https://app.terraform.io/api/v2/oauth-clients/{{ oauth_client_id }}"
     method: DELETE
     headers:
       Authorization: "Bearer {{ tfc_token }}"
