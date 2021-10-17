@@ -11,6 +11,9 @@
       "attributes": {
         "key": "{{ item.key }}",
         "value": "{{ deploy_environment }}",
+        {% if item.description is defined and item.description != "" %}
+        "description": "{{ item.description }}",
+        {% endif %}
         "category": "terraform",
         "hcl": "{{item.hcl | default('false')}}",
         "sensitive": "{{item.sensitive | default('false')}}"
@@ -35,6 +38,9 @@
       "attributes": {
         "key": "{{ item.key }}",
         "value": "{{ item.value }}",
+        {% if item.description is defined and item.description != "" %}
+        "description": "{{ item.description }}",
+        {% endif %}
         "category": "terraform",
         "hcl": "{{item.hcl | default('false')}}",
         "sensitive": "{{item.sensitive | default('false')}}"

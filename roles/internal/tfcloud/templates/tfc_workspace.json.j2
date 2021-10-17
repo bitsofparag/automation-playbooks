@@ -1,6 +1,6 @@
-{% if tfc_app_workspaces is defined and tfc_app_workspaces != "" %}
+{% if tfc_base_workspaces is defined and tfc_base_workspaces != "" %}
 [
-  {% for item in tfc_app_workspaces %}
+  {% for item in tfc_base_workspaces %}
   {
     "data":
     {
@@ -9,12 +9,26 @@
         "auto-apply": "true",
         "description": "{{deploy_environment}} application resources in {{ item.name_prefix }}",
         "source-name": "Git Provider",
-        "source-url": "https://{{project_git_provider_domain}}/{{gitlab_group_name or project_team_name}}/{{source_repo_name}}",
+
+        {% if item.git_user is defined and item.git_user != "" %}
+        "source-url": "https://{{item.git_provider}}/{{item.git_user}}/{{item.source_repo_name}}",
+        {% else %}
+        "source-url": "https://{{item.git_provider}}/{{gitlab_group_name or project_team_name}}/{{item.source_repo_name}}",
+        {% endif %}
+
+        {% if item.working_directory is defined and item.working_directory != "" %}
         "working-directory": "{{ item.working_directory }}",
+        {% endif %}
         "vcs-repo": {
-          "identifier": "{{gitlab_group_name or project_team_name}}/{{source_repo_name}}",
+
+          {% if item.git_user is defined and item.git_user != "" %}
+          "identifier": "{{item.git_user}}/{{item.source_repo_name}}",
+          {% else %}
+          "identifier": "{{gitlab_group_name or project_team_name}}/{{item.source_repo_name}}",
+          {% endif %}
+
           "oauth-token-id": "{{oauth_token_id}}",
-          "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
+          "branch": "{{ 'main' if deploy_environment == 'prod' else deploy_environment }}"
         },
         "global-remote-state": "true"
       },
@@ -23,50 +37,40 @@
   }{% if not loop.last %},{% endif %}
   {% endfor %}
 ]
-{% elif tfc_data_coll_workspaces is defined and tfc_data_coll_workspaces != "" %}
-[
-  {% for item in tfc_data_coll_workspaces %}
+
+{% elif tfc_workspace_name is defined and tfc_workspace_name != "" and (tfc_workspace_metadata_items|length == 1)%}
+  {% for item in tfc_workspace_metadata_items %}
   {
     "data":
     {
       "attributes": {
-        "name": "{{item.name_prefix}}-{{deploy_environment}}",
+        "name": "{{_workspace_name}}",
         "auto-apply": "true",
-        "description": "{{deploy_environment}} data-collection resources in {{ item.name_prefix }}",
+        "description": "{{deploy_environment}} infra resources in {{ _workspace_name }}",
         "source-name": "Git Provider",
-        "source-url": "https://{{project_git_provider_domain}}/{{gitlab_group_name or project_team_name}}/{{source_repo_name}}",
+
+        {% if item.git_user is defined and item.git_user != "" %}
+        "source-url": "https://{{item.git_provider}}/{{item.git_user}}/{{item.source_repo_name}}",
+        {% else %}
+        "source-url": "https://{{item.git_provider}}/{{gitlab_group_name or project_team_name}}/{{item.source_repo_name}}",
+        {% endif %}
+
+        {% if item.working_directory is defined and item.working_directory != "" %}
         "working-directory": "{{ item.working_directory }}",
+        {% endif %}
         "vcs-repo": {
-          "identifier": "{{gitlab_group_name or project_team_name}}/{{source_repo_name}}",
+          {% if item.git_user is defined and item.git_user != "" %}
+          "identifier": "{{item.git_user}}/{{item.source_repo_name}}",
+          {% else %}
+          "identifier": "{{gitlab_group_name or project_team_name}}/{{item.source_repo_name}}",
+          {% endif %}
           "oauth-token-id": "{{oauth_token_id}}",
-          "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
+          "branch": "{{ 'main' if deploy_environment == 'prod' else deploy_environment }}"
         },
         "global-remote-state": "true"
       },
       "type":"workspaces"
     }
-  }{% if not loop.last %},{% endif %}
-  {% endfor %}
-]
-{% elif tfc_workspace_name != "" %}
-{
-  "data":
-  {
-    "attributes": {
-      "name": "{{workspace_name}}",
-      "auto-apply": "true",
-      "description": "{{deploy_environment}} infra resources in {{ workspace_name }}",
-      "source-name": "Git Provider",
-      "source-url": "https://{{project_git_provider_domain}}/{{gitlab_group_name or project_team_name}}/{{source_repo_name}}",
-      "working-directory": "{{ working_directory }}",
-      "vcs-repo": {
-        "identifier": "{{gitlab_group_name or project_team_name}}/{{source_repo_name}}",
-        "oauth-token-id": "{{oauth_token_id}}",
-        "branch": "{{ 'main' if deploy_environment == 'production' else deploy_environment }}"
-      },
-      "global-remote-state": "true"
-    },
-    "type":"workspaces"
   }
-}
+  {% endfor %}
 {% endif %}
