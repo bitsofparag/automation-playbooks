@@ -95,6 +95,46 @@
     - tfc_vars_remove
     - tfc_vars_edit
 
+# -----------------------------------------------
+# Task to create/update group vars from existing workspace
+# ----------------------------------------------
+- name: Tfc* CREATE group_vars/{{deploy_environment}}/tfc_{{tfc_workspace_name}}_vars.json
+  when: add_environment == "" and workspace_vars_list is defined and (workspace_vars_list|length > 0)
+  ansible.builtin.template:
+    src: templates/group_vars__tfc_tf_vars.json.j2
+    dest: "{{playbook_dir + '/group_vars/' + project_namespace + '_ops/' + deploy_environment + '/tfc_' + tfc_workspace_name + '_vars.json'}}"
+    backup: yes
+  tags:
+    - tfc_vars_edit
+
+- name: Tfc* CREATE group_vars/{{add_environment}}/tfc_{{tfc_workspace_name}}_vars.json
+  when: add_environment != "" and workspace_vars_list is defined and (workspace_vars_list|length > 0)
+  ansible.builtin.template:
+    src: templates/group_vars__tfc_tf_vars.json.j2
+    dest: "{{playbook_dir + '/group_vars/' + project_namespace + '_ops/' + add_environment + '/tfc_' + tfc_workspace_name + '_vars.json'}}"
+    backup: yes
+  tags:
+    - tfc_vars_edit
+
+- name: Tfc* PAUSE to update ops group_vars (same environment)
+  when: add_environment == "" and workspace_vars_list is defined and (workspace_vars_list|length > 0)
+  pause:
+    prompt: |
+      Please update values in group_vars/{{project_namespace}}_ops/{{deploy_environment}}/tfc_{{tfc_workspace_name}}_vars.json
+
+      Press Enter when completed:
+  tags:
+    - tfc_vars_edit
+
+- name: Tfc* PAUSE to update ops group_vars (cross environment)
+  when: add_environment != "" and workspace_vars_list is defined and (workspace_vars_list|length > 0)
+  pause:
+    prompt: |
+      Please update values in group_vars/{{project_namespace}}_ops/{{add_environment}}/tfc_{{tfc_workspace_name}}_vars.json
+
+      Press Enter when completed:
+  tags:
+    - tfc_vars_edit
 
 # -----------------------------------------------
 # Task to remove all vars
@@ -145,7 +185,6 @@
   register: response
   tags:
     - tfc_vars_new
-    - tfc_vars_edit
 
 
 # -------------------------------------------
@@ -154,11 +193,10 @@
 - name: Tfc* TEMPLATE a payload file for user's TfCloud terraform vars
   when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
   set_fact:
-    tfc_tf_vars_rendered: "{{ lookup('template', 'tfc_tf_vars.json.j2') }}"
+    tfc_tf_vars_rendered: "{{ lookup('template', 'tfc_tf_vars.json.j2') | to_json }}"
   tags:
     - tfc_vars_new
     - tfc_vars_edit
-
 
 - name: Tfc* POST the payload file as user's terraform vars to workspace "{{ tfc_workspace_name }}"
   when: tfc_tf_vars_rendered is defined and (tfc_tf_vars_rendered|length > 0)
@@ -176,7 +214,6 @@
   with_items: "{{ tfc_tf_vars_rendered }}"
   tags:
     - tfc_vars_new
-    - tfc_vars_edit
 
 
 # -----------------------------------------------------
@@ -193,7 +230,7 @@
 - name: Tfc* GET value of specified var {{ tfc_var_name }}
   when: tfc_var_name is defined and tfc_var_name != ""
   uri:
-    url: "https://app.terraform.io/api/v2/vars?filter%5Borganization%5D%5Bname%5D=concr&filter%5Bworkspace%5D%5Bname%5D={{tfc_workspace_name}}-{{deploy_environment}}"
+    url: "https://app.terraform.io/api/v2/vars?filter%5Borganization%5D%5Bname%5D={{tfc_org_name}}&filter%5Bworkspace%5D%5Bname%5D={{tfc_workspace_name}}-{{deploy_environment}}"
     headers:
       Authorization: "Bearer {{ tfc_token }}"
       Content-Type: application/vnd.api+json

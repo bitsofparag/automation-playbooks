@@ -1,0 +1,15 @@
+{
+  "tfc_tf_vars": [
+{% for item in workspace_vars_list %}
+    {
+      "key": "{{ item.attributes.key }}",
+      "value": "{{ item.attributes.value }}",
+      "description": "{{ item.attributes.description }}",
+      "hcl": {% if item.attributes.hcl %}"true"{% else %}"false"{% endif %},
+      "sensitive": {% if item.attributes.sensitive %}"true"{% else %}"false"{% endif %}
+
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ]
+}

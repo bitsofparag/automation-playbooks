@@ -56,7 +56,7 @@
   authorized_key:
     user: "{{ ops_user }}"
     state: present
-    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/' + ops_user + '-shared.pub') }}"
+    key: "{{ lookup('file', playbook_dir + '/secrets/' + ops_user + '-shared.pub') }}"
   become: true
   tags:
     - user_keys
