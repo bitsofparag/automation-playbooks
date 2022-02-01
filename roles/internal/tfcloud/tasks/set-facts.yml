@@ -24,12 +24,15 @@
   set_fact:
     cacheable: yes
     org_list: "{{ response.json.data }}"
+    org_exists: "{{ org_list | json_query(query) | default(false) }}"
+  vars:
+    query: "[?id=='{{ tfc_org_name }}'].id"
 
 
 # -------------------------
 # Get list of oauth clients
 - name: Tfc* GET list of oauth clients
-  when: org_list is defined and (org_list|length > 0)
+  when: org_list is defined and (org_list|length > 0) and org_exists
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/oauth-clients"
     method: GET
@@ -124,7 +127,7 @@
 # ----------------------------------
 # Set list of SSH keys
 - name: Tfc* GET list of ssh-keys for this user
-  when: org_list is defined and (org_list|length > 0)
+  when: org_list is defined and (org_list|length > 0) and org_exists
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/ssh-keys"
     method: GET
@@ -146,7 +149,7 @@
 # ----------------------------------
 # Set list of registry modules
 - name: Tfc* GET list of registry modules
-  when: org_list is defined and (org_list|length > 0)
+  when: org_list is defined and (org_list|length > 0) and org_exists
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/registry-modules"
     method: GET
@@ -168,7 +171,7 @@
 # ----------------------------------
 # Set list of workspaces
 - name: Tfc* GET list of workspaces
-  when: org_list is defined and (org_list|length > 0)
+  when: org_list is defined and (org_list|length > 0) and org_exists
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/workspaces"
     method: GET

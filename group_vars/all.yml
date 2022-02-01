@@ -3,7 +3,7 @@
 # ----------------------------------------------
 # Environment-related metadata
 # ----------------------------------------------
-deploy_environment: "{{ lookup('env', 'ENVIRONMENT') | default('testing') }}"
+deploy_environment: "{{ lookup('env', 'ENVIRONMENT') | default('dev') }}"
 add_environment: ""
 provision_root: "{{ lookup('env', 'PROVISION_ROOT') }}"
 
