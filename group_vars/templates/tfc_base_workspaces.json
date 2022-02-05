@@ -1,0 +1,31 @@
+{
+  "tfc_base_workspaces": [
+    {
+    "id": 1,
+    "name_prefix": "networking",
+    "git_provider": "github.com",
+    "source_repo_name": "dops",
+    "working_directory": "deploy/networking"
+  },
+    {
+    "id": 2,
+    "name_prefix": "data-collection",
+    "git_provider": "github.com",
+    "source_repo_name": "dops",
+    "working_directory": "deploy/data-collection"
+  },
+    {
+    "id": 3,
+    "name_prefix": "billing",
+    "git_provider": "github.com",
+    "source_repo_name": "dops",
+    "working_directory": "deploy/billing"
+  },
+    {
+    "id": 4,
+    "name_prefix": "grafana",
+    "git_provider": "github.com",
+    "source_repo_name": "self-hosted-grafana",
+    "working_directory": "/"
+  }]
+}

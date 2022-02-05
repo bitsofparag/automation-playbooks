@@ -1,0 +1,41 @@
+{
+  "tfc_tf_vars": [
+    {
+      "key": "user_names",
+      "value": [
+        "parag"
+      ],
+      "hcl": true,
+      "description": "List of allowed SSM users."
+    },
+    {
+      "key": "custom_ssh_port",
+      "value": ${CUSTOM_SSH_PORT},
+      "hcl": true,
+      "description": "A non-standard SSH port number, if required in some resources."
+    },
+    {
+      "key": "enable_peering",
+      "value": "false",
+      "hcl": true
+    },
+    {
+      "key": "primary_domain_name",
+      "value": "${DOMAIN_NAME}"
+    },
+    {
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "${AWS_ACCESS_KEY_ID}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "${AWS_SECRET_ACCESS_KEY}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    }
+  ]
+}

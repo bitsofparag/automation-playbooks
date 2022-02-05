@@ -1,0 +1,221 @@
+{
+  "tfc_tf_vars": [
+    {
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "${AWS_ACCESS_KEY_ID}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "${AWS_SECRET_ACCESS_KEY}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    },
+    {
+      "key": "packages_project_id",
+      "value": ""
+    },
+    {
+      "key": "project_access_token",
+      "value": "${GITHUB_USER_ACCESS_TOKEN}",
+      "sensitive": true,
+      "description": "The Github personal access token (PAT) to authorize downloading of packages."
+    },
+    {
+      "key": "data_collection_sentry_dsn",
+      "value": "${DATA_COLLECTION_SENTRY_DSN}",
+      "description": "The Sentry.io DSN for warning and errors in live environments."
+    },
+    {
+      "key": "stream_logs_retention_period",
+      "value": 48,
+      "hcl": true,
+      "description": "Number of days to retain logs in the stream"
+    },
+    {
+      "key": "processing_enabled",
+      "value": "true",
+      "hcl": true,
+      "description": "Set to true if a processing lambda or similar config is used to pre-process incoming firehose data."
+    },
+    {
+      "key": "buffer_size",
+      "value": 128,
+      "hcl": true,
+      "description": "Buffer incoming data to the specified size in MBs before delivering it to s3."
+    },
+    {
+      "key": "buffer_interval",
+      "value": 60,
+      "hcl": true,
+      "description": "Buffer incoming data for the specified period of time, in seconds, before delivering it to the destination."
+    },
+    {
+      "key": "s3_destination_folder_prefix",
+      "value": "measurements/",
+      "description": "Extra prefix to be added in front of the time format prefix (YYYY/MM/DD/HH) for S3 folder name"
+    },
+    {
+      "key": "s3_destination_backup_status",
+      "value": "Disabled",
+      "description": "Set to true if backup of S3 data is needed."
+    },
+    {
+      "key": "s3_destination_logging_status",
+      "value": "false",
+      "hcl": true,
+      "description": "Enable cloudwatch logging on all entities."
+    },
+    {
+      "key": "is_public",
+      "value": "false",
+      "hcl": true,
+      "description": "Set to false if the bucket is private."
+    },
+    {
+      "key": "force_destroy",
+      "value": "true",
+      "hcl": true,
+      "description": "boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error."
+    },
+    {
+      "key": "acl",
+      "value": "private",
+      "description": "Canned ACL to apply to the S3 bucket."
+    },
+    {
+      "key": "lifecycle_infrequent_storage_transition_enabled",
+      "value": "true",
+      "description": "Specifies infrequent storage transition lifecycle rule status.",
+      "hcl": true
+    },
+    {
+      "key": "lifecycle_days_to_infrequent_storage_transition",
+      "value": 60,
+      "hcl": true,
+      "description": "Specifies the number of days after object creation when it will be moved to standard infrequent access storage."
+    },
+    {
+      "key": "lifecycle_glacier_transition_enabled",
+      "value": "true",
+      "description": "Specifies Glacier transition lifecycle rule status.",
+      "hcl": true
+    },
+    {
+      "key": "lifecycle_days_to_glacier_transition",
+      "value": 200,
+      "hcl": true,
+      "description": "Specifies the number of days after object creation when it will be moved to Glacier storage."
+    },
+    {
+      "key": "lifecycle_expiration_enabled",
+      "value": "false",
+      "description": "Specifies expiration lifecycle rule status.",
+      "hcl": true
+    },
+    {
+      "key": "lifecycle_days_to_expiration",
+      "value": 730,
+      "hcl": true,
+      "description": "Specifies the number of days after object creation when the object expires."
+    },
+    {
+      "key": "forwarder_rule_sql",
+      "value": [],
+      "hcl": true,
+      "description": "IoT Rule SQL to forward to the destination rule"
+    },
+    {
+      "key": "enable_simulator",
+      "value": "false",
+      "hcl": true,
+      "description": "Set to true if you want to create a simulated device as a Thing."
+    },
+    {
+      "key": "enable_rds",
+      "value": "true",
+      "description": "Set to false if you don't want a PgSQL RDS for storing time-series data.",
+      "hcl": true
+    },
+    {
+      "key": "add_replica",
+      "value": "false",
+      "description": "Set to true if you want a replica. (Always false if `enable_rds` is false)",
+      "hcl": true
+    },
+    {
+      "key": "database_name",
+      "value": "${PROJECT_NAME}_iot",
+      "description": "Database name. Shared across projects hosted in this data-collection stack."
+    },
+    {
+      "key": "postgresql_version",
+      "value": "14.1"
+    },
+    {
+      "key": "allocated_storage",
+      "value": 20,
+      "hcl": true,
+      "description": "Allocated storage for managed database."
+    },
+    {
+      "key": "instance_class",
+      "value": "db.t3.small",
+      "description": "The type of VM instance to run the database on. See https://aws.amazon.com/rds/instance-types/"
+    },
+    {
+      "key": "userdata_ssh_pubkey",
+      "value": "${SSH_PUBKEY}",
+      "sensitive": true,
+      "description": "Public key that is authorized to access the database."
+    },
+    {
+      "key": "db_instance_logs_retention_days",
+      "value": 7,
+      "description": "Number of days to retain log events in the RDS log group"
+    },
+    {
+      "key": "firehose_lambda_package_name",
+      "value": "json_pre_processor"
+    },
+    {
+      "key": "firehose_lambda_version",
+      "value": "0.1.0"
+    },
+    {
+      "key": "firehose_lambda_runtime",
+      "value": "python3.9"
+    },
+    {
+      "key": "firehose_lambda_timeout",
+      "value": 30
+    },
+    {
+      "key": "firehose_lambda_logs_retention_days",
+      "value": 7
+    },
+    {
+      "key": "data_subscriber_sensor_readings_package_name",
+      "value": "data_subscriber_sensor_readings"
+    },
+    {
+      "key": "data_subscriber_sensor_readings_version",
+      "value": "0.1.0"
+    },
+    {
+      "key": "data_subscriber_sensor_readings_runtime",
+      "value": "go1.x"
+    },
+    {
+      "key": "data_subscriber_sensor_readings_timeout",
+      "value": "30"
+    },
+    {
+      "key": "data_subscriber_sensor_readings_logs_retention_days",
+      "value": 7
+    }
+  ]
+}

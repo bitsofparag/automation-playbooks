@@ -1,0 +1,75 @@
+{
+  "tfc_tf_vars": [
+    {
+      "key": "project_namespace",
+      "value": "${PROJECT_NAMESPACE}"
+    },
+    {
+      "key": "ops_email",
+      "value": "${OPS_EMAIL}"
+    },
+    {
+      "key": "ops_user",
+      "value": "ubuntu"
+    },
+    {
+      "key": "grafana_domain",
+      "value": "localhost",
+      "description": "See https://grafana.com/docs/grafana/latest/administration/configuration/#server"
+    },
+    {
+      "key": "grafana_version",
+      "value": "${GRAFANA_VERSION}",
+      "description": "Check software versions at https://grafana.com/docs/grafana/latest/release-notes/"
+    },
+    {
+      "key": "grafana_proxy_port",
+      "value": "${GRAFANA_PORT}",
+      "description": "Set this to the port you want to proxy the Grafana server on."
+    },
+    {
+      "key": "compose_version",
+      "value": "${COMPOSE_VERSION}",
+      "description": "Check software versions at https://github.com/docker/compose/releases/"
+    },
+    {
+      "key": "instance_ami_name",
+      "value": "aws-docker",
+      "description": "The AMI name containing docker to be able to run Grafana"
+    },
+    {
+      "key": "instance_ami_id",
+      "value": ""
+    },
+    {
+      "key": "instance_type",
+      "value": "t3a.small"
+    },
+    {
+      "key": "instance_key_name_local",
+      "value": "",
+      "description": "The ssh keypair name (on your local machine) that is provided to the instance. Conflicts with `instance_key_name_aws`."
+    },
+    {
+      "key": "instance_key_pub",
+      "value": "",
+      "description": "The public key (user-provided as string) to set in the instance. If empty, the local ~/.ssh folder will be read.",
+      "sensitive": true
+    },
+    {
+      "key": "instance_key_name_aws",
+      "value": "",
+      "description": "The ssh keypair name (on AWS) that is provided to the instance. Conflicts with `instance_key_name_local`."
+    },
+    {
+      "key": "instance_ssh_enabled",
+      "value": "false",
+      "description": "Set to true if you want to enable standard SSH access to the deployed instance."
+    },
+    {
+      "key": "instance_root_disk_size",
+      "value": 8,
+      "description": "Disk size of the root block device. 8gb is usually enough."
+    }
+  ]
+}

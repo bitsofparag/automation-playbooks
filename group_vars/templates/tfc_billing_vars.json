@@ -1,0 +1,33 @@
+{
+  "tfc_tf_vars": [
+    {
+      "key": "cost_budget_limit_amount",
+      "value": "${COST_BUDGET_LIMIT_AMOUNT}",
+      "hcl": true
+    },
+    {
+      "key": "cost_budget_threshold",
+      "value": "${COST_BUDGET_THRESHOLD}",
+      "hcl": true
+    },
+    {
+      "key": "ops_email",
+      "value": "${OPS_EMAIL}",
+      "hcl": true
+    },
+    {
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "${AWS_ACCESS_KEY_ID}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "${AWS_SECRET_ACCESS_KEY}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    }
+  ]
+}
