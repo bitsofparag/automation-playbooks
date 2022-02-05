@@ -46,7 +46,7 @@
 # Terraform cloud ssh key UPLOAD tasks
 # ------------------------------------
 # https://www.terraform.io/docs/cloud/api/ssh-keys.html
-- name: Tfc* UPLOAD private SSH key to "{{ tfc_org_name }}" (tfcloud)
+- name: Tfc* UPLOAD private SSH key to TFCloud org {{ tfc_org_name }}
   when: tfc_org_name is defined and tfc_org_name != "" and user_key_file != ""
   uri:
     url: "https://app.terraform.io/api/v2/organizations/{{ tfc_org_name }}/ssh-keys"
