@@ -24,7 +24,7 @@
   set_fact:
     cacheable: yes
     org_list: "{{ response.json.data }}"
-    org_exists: "{{ org_list | json_query(query) | default(false) }}"
+    org_exists: "{{ response.json.data | json_query(query) | default(false) }}"
   vars:
     query: "[?id=='{{ tfc_org_name }}'].id"
 
