@@ -1,0 +1,81 @@
+{
+  "tfc_tf_vars": [
+    {
+      "key": "environment",
+      "value": "${ENVIRONMENT}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "backend_services",
+      "value": "[]",
+      "description": "",
+      "hcl": "true",
+      "sensitive": "false"
+    },
+    {
+      "key": "app_domain_name",
+      "value": "${DOMAIN_NAME}",
+      "description": "The main domain name under which the backend apps are hosted",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "key_pair_name",
+      "value": "${PROJECT_NAMESPACE}ops_ec2",
+      "description": "The AWS SSL key pair for accessing EC2 instances",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "health_check_path",
+      "value": "/ping/",
+      "description": "Health check path for the default target group",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "default_log_retention_in_days",
+      "value": "14",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "userdata_ssh_pubkey",
+      "value": "${SSH_PUBKEY}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    },
+    {
+      "key": "auth_api_sentry_dsn",
+      "value": "${AUTH_API_SENTRY_DSN}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "domain_api_sentry_dsn",
+      "value": "${DOMAIN_API_SENTRY_DSN}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "${AWS_ACCESS_KEY_ID}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "${AWS_SECRET_ACCESS_KEY}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    }
+  ]
+}

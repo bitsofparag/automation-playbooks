@@ -1,23 +1,33 @@
 {
   "tfc_tf_vars": [
     {
+      "key": "environment",
+      "value": "${ENVIRONMENT}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
       "key": "user_names",
-      "value": [
-        "parag"
-      ],
-      "hcl": true,
+      "value": ["parag"],
+      "hcl": "true",
       "description": "List of allowed SSM users."
     },
     {
       "key": "custom_ssh_port",
-      "value": ${CUSTOM_SSH_PORT},
-      "hcl": true,
+      "value": "${CUSTOM_SSH_PORT}",
+      "hcl": "true",
       "description": "A non-standard SSH port number, if required in some resources."
     },
     {
       "key": "enable_peering",
       "value": "false",
-      "hcl": true
+      "hcl": "true"
+    },
+    {
+      "key": "add_bastion",
+      "value": "false",
+      "hcl": "true"
     },
     {
       "key": "primary_domain_name",

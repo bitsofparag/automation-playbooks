@@ -3,17 +3,17 @@
     {
       "key": "cost_budget_limit_amount",
       "value": "${COST_BUDGET_LIMIT_AMOUNT}",
-      "hcl": true
+      "hcl": "true"
     },
     {
       "key": "cost_budget_threshold",
       "value": "${COST_BUDGET_THRESHOLD}",
-      "hcl": true
+      "hcl": "true"
     },
     {
       "key": "ops_email",
       "value": "${OPS_EMAIL}",
-      "hcl": true
+      "hcl": "false"
     },
     {
       "key": "AWS_ACCESS_KEY_ID",

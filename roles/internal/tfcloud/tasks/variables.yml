@@ -98,7 +98,7 @@
 # -----------------------------------------------
 # Task to create/update group vars from existing workspace
 # ----------------------------------------------
-- name: Tfc* CREATE group_vars/{{deploy_environment}}/tfc_{{tfc_workspace_name}}_vars.json
+- name: Tfc* CREATE group_vars/{{project_namespace}}_{{deploy_environment}}/tfc_{{tfc_workspace_name}}_vars.json
   when: add_environment == "" and workspace_vars_list is defined and (workspace_vars_list|length > 0)
   ansible.builtin.template:
     src: templates/group_vars__tfc_tf_vars.json.j2
@@ -107,7 +107,7 @@
   tags:
     - tfc_vars_edit
 
-- name: Tfc* CREATE group_vars/{{add_environment}}/tfc_{{tfc_workspace_name}}_vars.json
+- name: Tfc* CREATE group_vars/{{project_namespace}}_{{add_environment}}/tfc_{{tfc_workspace_name}}_vars.json
   when: add_environment != "" and workspace_vars_list is defined and (workspace_vars_list|length > 0)
   ansible.builtin.template:
     src: templates/group_vars__tfc_tf_vars.json.j2
