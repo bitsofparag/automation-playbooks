@@ -95,6 +95,28 @@
     - tfc_vars_remove
     - tfc_vars_edit
 
+- name: Tfc* ENSURE folders to store group vars in {{deploy_environment}} exists
+  file:
+    path: "{{playbook_dir + '/group_vars/' + project_namespace + '_ops/' + deploy_environment}}"
+    state: directory
+    mode: '0755'
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+
+- name: Tfc* ENSURE folders to store group vars in {{add_environment}} exists
+  when: add_environment is defined and add_environment != ""
+  file:
+    path: "{{playbook_dir + '/group_vars/' + project_namespace + '_ops/' + add_environment}}"
+    state: directory
+    mode: '0755'
+  tags:
+    - tfc_vars_new
+    - tfc_vars_remove
+    - tfc_vars_edit
+
+
 # -----------------------------------------------
 # Task to create/update group vars from existing workspace
 # ----------------------------------------------
