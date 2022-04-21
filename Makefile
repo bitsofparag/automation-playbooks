@@ -104,9 +104,9 @@ endif
 	@mkdir -p ${HOME}/.terraform.d/plugin-cache
 	@echo -e \
 	  credentials "app.terraform.io" {\\n\
-      token = "${TFC_TOKEN}"\\n\
+      token = "\"${TFC_TOKEN}\""\\n\
     }\\n\
-    plugin_cache_dir = "$$HOME/.terraform.d/plugin-cache" >> ${HOME}/.terraformrc-${PROJECT_NAMESPACE}
+    plugin_cache_dir = "\"$$HOME/.terraform.d/plugin-cache\"" >> ${HOME}/.terraformrc-${PROJECT_NAMESPACE}
 	@echo "Now run: export TF_CLI_CONFIG_FILE=\$$HOME/.terraformrc-${PROJECT_NAMESPACE}"
 
 .PHONY: deploy-machine-image
