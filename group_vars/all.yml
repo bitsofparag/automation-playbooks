@@ -50,7 +50,7 @@ gitlab_set_dev_branch: true
 # ----------------------------------------------
 # Github metadata
 # ----------------------------------------------
-github_user_access_token: "{{ lookup('env', 'GITHUB_USER_ACCESS_TOKEN') }}"
+github_user_access_token: "{{ lookup('env', 'GITHUB_PAT') }}"
 
 
 # ----------------------------------------------

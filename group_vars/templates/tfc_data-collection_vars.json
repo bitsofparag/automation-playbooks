@@ -20,7 +20,7 @@
     },
     {
       "key": "project_access_token",
-      "value": "${GITHUB_USER_ACCESS_TOKEN}",
+      "value": "${GITHUB_PAT}",
       "sensitive": true,
       "description": "The Github personal access token (PAT) to authorize downloading of packages."
     },
