@@ -1,28 +1,36 @@
 {
   "tfc_base_workspaces": [
   {
-    "id": 1,
-    "name_prefix": "networking",
+    "name_prefix": "genesis",
     "git_provider": "github.com",
-    "source_repo_name": "dops",
-    "working_directory": "deploy/networking"
+    "source_repo_name": "${OPS_REPO_NAME}",
+    "working_directory": "deploy/genesis"
   },
   {
-    "id": 2,
-    "name_prefix": "data-collection",
-    "git_provider": "github.com",
-    "source_repo_name": "dops",
-    "working_directory": "deploy/data-collection"
-  },
-  {
-    "id": 3,
     "name_prefix": "billing",
     "git_provider": "github.com",
-    "source_repo_name": "dops",
+    "source_repo_name": "${OPS_REPO_NAME}",
     "working_directory": "deploy/billing"
   },
   {
-    "id": 4,
+    "name_prefix": "networking",
+    "git_provider": "github.com",
+    "source_repo_name": "${OPS_REPO_NAME}",
+    "working_directory": "deploy/networking"
+  },
+  {
+    "name_prefix": "data-collection",
+    "git_provider": "github.com",
+    "source_repo_name": "${OPS_REPO_NAME}",
+    "working_directory": "deploy/data-collection"
+  },
+  {
+    "name_prefix": "backend",
+    "git_provider": "github.com",
+    "source_repo_name": "${OPS_REPO_NAME}",
+    "working_directory": "deploy/backend"
+  },
+  {
     "name_prefix": "grafana",
     "git_provider": "github.com",
     "source_repo_name": "self-hosted-grafana",

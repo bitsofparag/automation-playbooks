@@ -159,7 +159,7 @@
     - tfc_vars_edit
 
 # -----------------------------------------------
-# Task to remove all vars
+# Task to remove all TFCloud vars
 # -----------------------------------------------
 - name: Tfc* DELETE all vars in workspace "{{ tfc_workspace_name }}"
   when: workspace_vars_list is defined and (workspace_vars_list|length > 0)
@@ -179,7 +179,7 @@
 
 
 # -------------------------------------------
-# Tasks for adding new env vars
+# Tasks for adding new TFCLoud env vars
 # -------------------------------------------
 - name: Tfc* TEMPLATE the POST payload for user's TfCloud ENV VARS
   when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
@@ -210,7 +210,7 @@
 
 
 # -------------------------------------------
-# Tasks for adding new TF vars
+# Tasks for adding new TFCLoud TF vars
 # -------------------------------------------
 - name: Tfc* TEMPLATE a payload file for user's TfCloud terraform vars
   when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
@@ -239,7 +239,7 @@
 
 
 # -----------------------------------------------------
-# Tasks for getting value of specified variable via API
+# Tasks for getting value of specified TFCloud variable via API
 # -----------------------------------------------------
 - name: Tfc* INTERRUPT if "tfc_org_name" variable is not provided
   when: tfc_org_name == ""
@@ -279,8 +279,3 @@
     var: var_value
   tags:
     - tfc_vars_debug
-
-
-# -----------------------------------------------------
-# Tasks for getting value of specified variable via CLI
-# -----------------------------------------------------
