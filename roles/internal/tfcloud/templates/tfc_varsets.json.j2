@@ -1,0 +1,31 @@
+{% if tfc_varsets|length > 0 %}
+[
+{% for item in tfc_varsets %}
+{
+  "data": {
+    "type": "varsets",
+    "attributes": {
+      "name": "{{ item.varset_name }}",
+      "description": "{{ item.varset_description }}",
+      "global": "{{ item.is_global | default('true')}}"
+    },
+    "relationships": {
+      "workspaces": {
+        "data": {{ workspaces_list }}
+      },
+      "vars": {
+        "data": [
+  {% for variable in item.vars %}
+          {
+            "type": "vars",
+            "attributes": {{ variable }}
+          }{% if not loop.last %},{% endif %}
+  {% endfor %}
+        ]
+      }
+    }
+  }
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+{% endif %}

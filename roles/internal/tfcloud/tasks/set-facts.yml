@@ -187,7 +187,9 @@
   when: response is defined and 'json' in response
   set_fact:
     cacheable: yes
-    workspaces_list: "{{ response.json.data | default([]) }}"
+    workspaces_list: "{{ response.json.data | json_query(query) | default([]) }}"
+  vars:
+    query: "[*].{id: id,type: type}"
 
 
 - name: Tfc* SET_FACT workspace_id for requested workspace

@@ -1,0 +1,27 @@
+{
+  "tfc_varsets": [
+    {
+      "varset_name": "CloudVars",
+      "varset_description": "All cloud vars shared across workspaces",
+      "is_global": true,
+      "vars": [
+        {
+          "key": "AWS_ACCESS_KEY_ID",
+          "value": "${AWS_ACCESS_KEY_ID}",
+          "description": "",
+          "hcl": "false",
+          "sensitive": "false",
+          "category": "terraform"
+        },
+        {
+          "key": "AWS_SECRET_ACCESS_KEY",
+          "value": "${AWS_SECRET_ACCESS_KEY}",
+          "description": "",
+          "hcl": "false",
+          "sensitive": "true",
+          "category": "terraform"
+        }
+      ]
+    }
+  ]
+}

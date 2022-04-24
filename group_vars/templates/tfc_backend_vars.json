@@ -62,20 +62,6 @@
       "description": "",
       "hcl": "false",
       "sensitive": "false"
-    },
-    {
-      "key": "AWS_ACCESS_KEY_ID",
-      "value": "${AWS_ACCESS_KEY_ID}",
-      "description": "",
-      "hcl": "false",
-      "sensitive": "false"
-    },
-    {
-      "key": "AWS_SECRET_ACCESS_KEY",
-      "value": "${AWS_SECRET_ACCESS_KEY}",
-      "description": "",
-      "hcl": "false",
-      "sensitive": "true"
     }
   ]
 }

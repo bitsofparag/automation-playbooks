@@ -1,0 +1,41 @@
+- name: Tfc* INCLUDE TASKS set-facts needed for managing workspaces
+  include_role:
+    name: tfcloud
+    tasks_from: set-facts
+    apply:
+      tags:
+        - tfc_varsets_new
+        - tfc_varsets_edit
+  tags:
+    - tfc_varsets_new
+    - tfc_varsets_edit
+
+# -------------------------------------------
+# Tasks for adding new TFCLoud variable set
+# -------------------------------------------
+- name: Tfc* TEMPLATE the POST payload for user's TfCloud Variable set
+  when: tfc_varsets is defined and (tfc_varsets|length > 0)
+  set_fact:
+    tfc_varsets_rendered: "{{ lookup('template', 'tfc_varsets.json.j2') | to_json}}"
+  tags:
+    - tfc_varsets_new
+    - tfc_varsets_edit
+
+
+- name: Tfc* POST the payload as user's varset to all workspaces"
+  when: tfc_varsets_rendered is defined and (tfc_varsets_rendered|length > 0)
+  uri:
+    url: "https://app.terraform.io/api/v2/organizations/{{tfc_org_name}}/varsets"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body: "{{ item }}"
+    body_format: 'json'
+    status_code: [201, 200, 422]
+    return_content: yes
+  with_items: "{{ tfc_varsets_rendered }}"
+  register: response
+  tags:
+    - tfc_varsets_new
