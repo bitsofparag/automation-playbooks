@@ -50,15 +50,15 @@
       "sensitive": "true"
     },
     {
-      "key": "auth_api_sentry_dsn",
-      "value": "${AUTH_API_SENTRY_DSN}",
+      "key": "auth_sentry_dsn",
+      "value": "${AUTH_SENTRY_DSN}",
       "description": "",
       "hcl": "false",
       "sensitive": "false"
     },
     {
-      "key": "domain_api_sentry_dsn",
-      "value": "${DOMAIN_API_SENTRY_DSN}",
+      "key": "apps_sentry_dsn",
+      "value": "${APPS_SENTRY_DSN}",
       "description": "",
       "hcl": "false",
       "sensitive": "false"
