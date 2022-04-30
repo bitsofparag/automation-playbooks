@@ -1,10 +1,10 @@
 {
   "tfc_base_workspaces": [
   {
-    "name_prefix": "genesis",
+    "name_prefix": "hosting",
     "git_provider": "github.com",
     "source_repo_name": "${OPS_REPO_NAME}",
-    "working_directory": "deploy/genesis"
+    "working_directory": "deploy/hosting"
   },
   {
     "name_prefix": "billing",

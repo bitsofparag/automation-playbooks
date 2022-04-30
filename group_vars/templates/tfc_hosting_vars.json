@@ -1,0 +1,30 @@
+{
+  "tfc_tf_vars": [
+    {
+      "key": "environment",
+      "value": "${ENVIRONMENT}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "primary_domain_name",
+      "value": "${DOMAIN_NAME}",
+      "hcl": "false"
+    },
+    {
+      "key": "cloudflare_email",
+      "value": "${CLOUDFLARE_EMAIL}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    },
+    {
+      "key": "cloudflare_api_key",
+      "value": "${CLOUDFLARE_API_KEY}",
+      "description": "",
+      "hcl": "false",
+      "sensitive": "true"
+    }
+  ]
+  }
