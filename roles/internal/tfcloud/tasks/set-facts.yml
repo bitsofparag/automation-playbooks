@@ -191,12 +191,24 @@
   vars:
     query: "[*].{id: id,type: type}"
 
+- name: Tfc* SET_FACT list of workspace names as "workspace_names_list"
+  when: response is defined and 'json' in response
+  set_fact:
+    cacheable: yes
+    workspace_names_list: "{{ response.json.data | json_query(query) | default([]) }}"
+  vars:
+    query: "[*].{id: id, name: attributes.name}"
+
+- name: Tfc* DEBUG display the workspace_names_list
+  when: workspace_names_list is defined
+  debug:
+    var: workspace_names_list
 
 - name: Tfc* SET_FACT workspace_id for requested workspace
   when: tfc_workspace_name is defined and tfc_workspace_name != "" and deploy_environment != ""
   set_fact:
     cacheable: yes
-    workspace_id: "{{ workspaces_list | json_query(query) | first | default('') }}"
+    workspace_id: "{{ response.json.data | json_query(query) | first | default('') }}"
   vars:
     query: "[?attributes.name=='{{ tfc_workspace_name+'-'+deploy_environment }}'].id"
 

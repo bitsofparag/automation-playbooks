@@ -13,17 +13,21 @@
     apply:
       tags:
         - tfc_workspace_new
+        - tfc_workspace_tags_new
         - tfc_workspace_edit
         - tfc_workspace_remove
         - tfc_workspace_debug
         - tfc_base_workspaces_new
+        - tfc_base_workspaces_tags_new
         - tfc_base_workspaces_remove
   tags:
     - tfc_workspace_new
+    - tfc_workspace_tags_new
     - tfc_workspace_edit
     - tfc_workspace_remove
     - tfc_workspace_debug
     - tfc_base_workspaces_new
+    - tfc_base_workspaces_tags_new
     - tfc_base_workspaces_remove
 
 
@@ -47,6 +51,30 @@
   tags:
     - tfc_base_workspaces_new
 
+- name: Tfc* CREATE tags for all the base workspaces
+  when: (workspace_names_list|length > 0)
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{ item.id }}/relationships/tags"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body:
+      data:
+        - type: "tags"
+          attributes:
+            name: "{{ deploy_environment }}"
+        - type: "tags"
+          attributes:
+            name: "{{ item.name|replace('-'+deploy_environment, '') }}"
+    body_format: "json"
+    status_code: [204, 200, 422]
+    return_content: yes
+  with_items: "{{ workspace_names_list }}"
+  tags:
+    - tfc_base_workspaces_tags_new
+
 - name: Tfc* REMOVE all app workspaces
   when: (tfc_base_workspaces is defined and tfc_base_workspaces|length > 0)
   uri:
@@ -55,7 +83,7 @@
     headers:
       Authorization: "Bearer {{ tfc_token }}"
       Content-Type: application/vnd.api+json
-    status_code: [200, 404]
+    status_code: [200, 204, 404]
     return_content: yes
   with_items: "{{ tfc_workspace_template }}"
   tags:
@@ -92,6 +120,28 @@
   tags:
     - tfc_workspace_new
 
+- name: Tfc* CREATE tags for workspace "{{ tfc_workspace_name }}"
+  when: tfc_workspace_name is defined and tfc_workspace_name != ""
+  uri:
+    url: "https://app.terraform.io/api/v2/workspaces/{{ workspace_id }}/relationships/tags"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ tfc_token }}"
+      Content-Type: application/vnd.api+json
+      Accept: application/json
+    body:
+      data:
+        - type: "tags"
+          attributes:
+            name: "{{ deploy_environment }}"
+        - type: "tags"
+          attributes:
+            name: "{{ tfc_workspace_name }}"
+    body_format: "json"
+    status_code: [204, 200, 422]
+    return_content: yes
+  tags:
+    - tfc_workspace_tags_new
 
 - name: Tfc* EDIT workspace "{{ tfc_workspace_name }}"
   when: tfc_workspace_name is defined and tfc_workspace_name != ""
@@ -119,7 +169,7 @@
       Authorization: "Bearer {{ tfc_token }}"
       Content-Type: application/vnd.api+json
       Accept: application/json
-    status_code: [200, 404]
+    status_code: [200, 204, 404]
     return_content: yes
   tags:
     - tfc_workspace_remove
