@@ -23,7 +23,7 @@
     },
     {
       "key": "key_pair_name",
-      "value": "${PROJECT_NAMESPACE}ops_ec2",
+      "value": "${OPS_USER}_ec2_${ENVIRONMENT}",
       "description": "The AWS SSL key pair for accessing EC2 instances",
       "hcl": "false",
       "sensitive": "false"

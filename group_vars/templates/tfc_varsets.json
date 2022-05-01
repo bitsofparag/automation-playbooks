@@ -20,6 +20,14 @@
           "hcl": "false",
           "sensitive": "true",
           "category": "env"
+        },
+        {
+          "key": "default_region",
+          "value": "${AWS_REGION}",
+          "description": "",
+          "hcl": "false",
+          "sensitive": "false",
+          "category": "terraform"
         }
       ]
     }

@@ -91,8 +91,8 @@ ifeq (${OPS_EMAIL}, )
 	@echo "Usage: OPS_USER=ops OPS_EMAIL=abc@example.com make create-ec2-key-pair"
 	@exit 1
 endif
-	ssh-keygen -t rsa -b 4096 -N '' -C ${OPS_EMAIL} -m PEM -f ~/.ssh/${OPS_USER}_ec2
-	@cat ~/.ssh/${OPS_USER}_ec2.pub
+	ssh-keygen -t rsa -b 4096 -N '' -C ${OPS_EMAIL} -m PEM -f ~/.ssh/${OPS_USER}_ec2_${ENVIRONMENT}
+	@cat ~/.ssh/${OPS_USER}_ec2_${ENVIRONMENT}.pub
 
 
 create-project-tfrc: ## Create .terraformrc file for the specified project
