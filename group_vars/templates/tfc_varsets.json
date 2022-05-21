@@ -22,12 +22,28 @@
           "category": "env"
         },
         {
-          "key": "default_region",
+          "key": "aws_region",
           "value": "${AWS_REGION}",
           "description": "",
           "hcl": "false",
           "sensitive": "false",
           "category": "terraform"
+        },
+        {
+          "key": "gcp_region",
+          "value": "${GCP_REGION}",
+          "description": "",
+          "hcl": "false",
+          "sensitive": "false",
+          "category": "terraform"
+        },
+        {
+          "key": "GOOGLE_CREDENTIALS",
+          "value": ${GCP_CREDENTIALS},
+          "description": "",
+          "hcl": "false",
+          "sensitive": "true",
+          "category": "env"
         }
       ]
     }

@@ -10,7 +10,7 @@
     {
       "key": "user_names",
       "value": ["parag"],
-      "hcl": "true",
+      "hcl": "false",
       "description": "List of allowed SSM users."
     },
     {
@@ -35,8 +35,15 @@
       "hcl": "true"
     },
     {
-      "key": "primary_domain_name",
-      "value": "${DOMAIN_NAME}"
+      "key": "key_pair_name",
+      "value": "${OPS_USER}_vm_${ENVIRONMENT}",
+      "hcl": "false"
+    },
+    {
+      "key": "gcp_project_id",
+      "value": "${GCP_PROJECT_ID}",
+      "hcl": "false",
+      "sensitive": "true"
     }
   ]
 }
