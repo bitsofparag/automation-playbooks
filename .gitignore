@@ -4,8 +4,7 @@
 ### Project specific ###
 .env*
 !.env.example
-/secrets/*.pub
-/secrets/*-shared*
+/secrets/*
 !/secrets/*.example
 **/*.payload
 **/*_ops/*
