@@ -30,6 +30,11 @@
       "hcl": "true"
     },
     {
+      "key": "enable_nat",
+      "value": "false",
+      "hcl": "true"
+    },
+    {
       "key": "primary_domain_name",
       "value": "${DOMAIN_NAME}"
     }
