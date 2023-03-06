@@ -39,7 +39,15 @@
         },
         {
           "key": "GOOGLE_CREDENTIALS",
-          "value": ${GCP_CREDENTIALS},
+          "value": "${GCP_CREDENTIALS}",
+          "description": "",
+          "hcl": "false",
+          "sensitive": "true",
+          "category": "env"
+        },
+        {
+          "key": "HCLOUD_TOKEN",
+          "value": "${HCLOUD_TOKEN}",
           "description": "",
           "hcl": "false",
           "sensitive": "true",
