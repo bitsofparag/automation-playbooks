@@ -23,8 +23,8 @@
 - name: Tfc* SET_FACT list of organizations as "org_list"
   set_fact:
     cacheable: yes
-    org_list: "{{ response.json.data }}"
-    org_exists: "{{ response.json.data | json_query(query) | default(false) }}"
+    org_list: (response.content|from_json)['data']
+    org_exists: "{{ (response.content|from_json)['data'] | json_query(query) | default(false) }}"
   vars:
     query: "[?id=='{{ tfc_org_name }}'].id"
 
@@ -45,10 +45,10 @@
 
 
 - name: Tfc* SET_FACT list of oauth clients as "oauth_client_list"
-  when: response is defined and ('json' in response)
+  when: response is defined and ('content' in response)
   set_fact:
     cacheable: yes
-    oauth_client_list: "{{ response.json.data | default([]) }}"
+    oauth_client_list: "{{ (response.content|from_json)['data'] | default([]) }}"
 
 
 # - name: Tfc* DEBUG display the json data of fetched oauth client list
@@ -95,10 +95,10 @@
     var: response
 
 - name: Tfc* SET_FACT oauth_client_id from the details of oauth token id (user provided)
-  when: tfc_oauth_token_id != "" and (response is defined and ('json' in response))
+  when: tfc_oauth_token_id != "" and (response is defined and ('content' in response))
   set_fact:
     cacheable: yes
-    oauth_client_id: "{{ response.json.data.relationships['oauth-client'].data.id | default('') }}"
+    oauth_client_id: "{{ (response.content|from_json)['data']['relationships']['oauth-client'].data.id | default('') }}"
     oauth_token_id: "{{ tfc_oauth_token_id }}"
 
 
@@ -117,10 +117,10 @@
   register: response
 
 - name: Tfc* SET_FACT oauth_token_id from the details of user provided oauth client id
-  when: tfc_oauth_client_id != "" and (response is defined and ('json' in response))
+  when: tfc_oauth_client_id != "" and (response is defined and ('content' in response))
   set_fact:
     cacheable: yes
-    oauth_client_id: "{{ response.json.data[0].relationships['oauth-tokens'].data[0].id | default('') }}"
+    oauth_client_id: "{{ (response.content|from_json)['data'][0].relationships['oauth-tokens'].data[0].id | default('') }}"
     oauth_token_id: "{{ tfc_oauth_client_id }}"
 
 
@@ -140,10 +140,10 @@
 
 
 - name: Tfc* SET_FACT list of ssh keys as "ssh_keys_list"
-  when: response is defined and 'json' in response
+  when: response is defined and 'content' in response
   set_fact:
     cacheable: yes
-    ssh_keys_list: "{{ response.json.data | default([]) }}"
+    ssh_keys_list: "{{ (response.content|from_json)['data'] | default([]) }}"
 
 
 # ----------------------------------
@@ -162,10 +162,10 @@
 
 
 - name: Tfc* SET_FACT list of registry modules as "modules_list"
-  when: response is defined and 'json' in response
+  when: response is defined and 'content' in response
   set_fact:
     cacheable: yes
-    modules_list: "{{ response.json.data | default([]) }}"
+    modules_list: "{{ (response.content|from_json)['data'] | default([]) }}"
 
 
 # ----------------------------------
@@ -184,18 +184,18 @@
 
 
 - name: Tfc* SET_FACT list of workspaces as "workspaces_list"
-  when: response is defined and 'json' in response
+  when: response is defined and 'content' in response
   set_fact:
     cacheable: yes
-    workspaces_list: "{{ response.json.data | json_query(query) | default([]) }}"
+    workspaces_list: "{{ (response.content|from_json)['data'] | json_query(query) | default([]) }}"
   vars:
     query: "[*].{id: id,type: type}"
 
 - name: Tfc* SET_FACT list of workspace names as "workspace_names_list"
-  when: response is defined and 'json' in response
+  when: response is defined and 'content' in response
   set_fact:
     cacheable: yes
-    workspace_names_list: "{{ response.json.data | json_query(query) | default([]) }}"
+    workspace_names_list: "{{ (response.content|from_json)['data'] | json_query(query) | default([]) }}"
   vars:
     query: "[*].{id: id, name: attributes.name}"
 
@@ -208,7 +208,7 @@
   when: tfc_workspace_name is defined and tfc_workspace_name != "" and deploy_environment != ""
   set_fact:
     cacheable: yes
-    workspace_id: "{{ response.json.data | json_query(query) | first | default('') }}"
+    workspace_id: "{{ (response.content|from_json)['data'] | json_query(query) | first | default('') }}"
   vars:
     query: "[?attributes.name=='{{ tfc_workspace_name+'-'+deploy_environment }}'].id"
 
