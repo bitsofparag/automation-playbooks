@@ -56,10 +56,10 @@
 
 
 - name: Tfc* SET_FACT the ID of "{{tfc_workspace_name}}" in "workspace_id"
-  when: ('json' in response) and ('data' in response.json)
+  when: response is defined and ('content' in response)
   set_fact:
     cacheable: yes
-    workspace_id: "{{ response.json.data.id }}"
+    workspace_id: "{{ (response.content | from_json)['data']['id'] }}"
   tags:
     - tfc_vars_new
     - tfc_vars_remove
@@ -86,10 +86,10 @@
 
 
 - name: Tfc* SET_FACT list of vars in "{{ tfc_workspace_name }}" ({{workspace_id}})
-  when: ('json' in response) and ('data' in response.json)
+  when: response is defined and ('content' in response)
   set_fact:
     cacheable: yes
-    workspace_vars_list: "{{ response.json.data }}"
+    workspace_vars_list: "{{ (response.content | from_json)['data'] }}"
   tags:
     - tfc_vars_new
     - tfc_vars_remove
@@ -184,7 +184,7 @@
 - name: Tfc* TEMPLATE the POST payload for user's TfCloud ENV VARS
   when: tfc_env_vars is defined and (tfc_env_vars|length > 0)
   set_fact:
-    tfc_env_vars_rendered: "{{ lookup('template', 'tfc_env_vars.json.j2') | to_json}}"
+    tfc_env_vars_rendered: "{{ lookup('template', 'tfc_env_vars.json.j2') }}"
   tags:
     - tfc_vars_new
     - tfc_vars_edit
@@ -215,7 +215,7 @@
 - name: Tfc* TEMPLATE a payload file for user's TfCloud terraform vars
   when: tfc_tf_vars is defined and (tfc_tf_vars|length > 0)
   set_fact:
-    tfc_tf_vars_rendered: "{{ lookup('template', 'tfc_tf_vars.json.j2') | to_json }}"
+    tfc_tf_vars_rendered: "{{ lookup('template', 'tfc_tf_vars.json.j2') }}"
   tags:
     - tfc_vars_new
     - tfc_vars_edit
@@ -266,7 +266,7 @@
   when: tfc_var_name is defined and tfc_var_name != ""
   set_fact:
     cacheable: yes
-    var_value: "{{ response.json.data | json_query(query) | first | default('') }}"
+    var_value: "{{ (response.content|from_json)['data'] | json_query(query) | first | default('') }}"
   vars:
     query: "[?attributes.key=='{{ tfc_var_name }}'].attributes.value"
   tags:
