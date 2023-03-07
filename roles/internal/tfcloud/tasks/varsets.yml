@@ -16,7 +16,7 @@
 - name: Tfc* TEMPLATE the POST payload for user's TfCloud Variable set
   when: tfc_varsets is defined and (tfc_varsets|length > 0)
   set_fact:
-    tfc_varsets_rendered: "{{ lookup('template', 'tfc_varsets.json.j2') | to_json}}"
+    tfc_varsets_rendered: "{{ lookup('template', 'tfc_varsets.json.j2') }}"
   tags:
     - tfc_varsets_new
     - tfc_varsets_edit
