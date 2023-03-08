@@ -52,6 +52,14 @@
           "hcl": "false",
           "sensitive": "true",
           "category": "env"
+        },
+        {
+          "key": "TFE_TOKEN",
+          "value": "${TFC_TOKEN}",
+          "description": "",
+          "hcl": "false",
+          "sensitive": "true",
+          "category": "env"
         }
       ]
     }
