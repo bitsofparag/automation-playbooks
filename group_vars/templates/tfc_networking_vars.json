@@ -11,13 +11,20 @@
       "key": "user_names",
       "value": ["parag"],
       "hcl": "false",
-      "description": "List of allowed SSM users."
+      "description": "List of allowed AWS SSM users."
     },
     {
-      "key": "custom_ssh_port",
-      "value": "${CUSTOM_SSH_PORT}",
+      "key": "bastion_ssh_port",
+      "value": "${BASTION_SSH_PORT}",
       "hcl": "true",
-      "description": "A non-standard SSH port number, if required in some resources."
+      "description": "Bastion SSH port. If not set, default port 22 will be used."
+    },
+    {
+      "key": "userdata_ssh_pubkey",
+      "value": "",
+      "hcl": "false",
+      "sensitive": "true",
+      "description": "SSH public key to be used for SSH access to the instances."
     },
     {
       "key": "enable_peering",
@@ -25,7 +32,7 @@
       "hcl": "true"
     },
     {
-      "key": "add_bastion",
+      "key": "enable_bastion",
       "value": "false",
       "hcl": "true"
     },
@@ -38,12 +45,6 @@
       "key": "key_pair_name",
       "value": "${OPS_USER}_vm_${ENVIRONMENT}",
       "hcl": "false"
-    },
-    {
-      "key": "gcp_project_id",
-      "value": "${GCP_PROJECT_ID}",
-      "hcl": "false",
-      "sensitive": "true"
     }
   ]
 }
