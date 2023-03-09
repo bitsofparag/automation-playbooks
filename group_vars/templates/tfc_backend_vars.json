@@ -24,7 +24,7 @@
     {
       "key": "key_pair_name",
       "value": "${OPS_USER}_vm_${ENVIRONMENT}",
-      "description": "The AWS SSL key pair for accessing EC2 instances",
+      "description": "The SSH key pair for accessing VMs",
       "hcl": "false",
       "sensitive": "false"
     },
