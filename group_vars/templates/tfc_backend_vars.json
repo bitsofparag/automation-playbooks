@@ -23,8 +23,15 @@
     },
     {
       "key": "key_pair_name",
-      "value": "${OPS_USER}_ec2_${ENVIRONMENT}",
+      "value": "${OPS_USER}_vm_${ENVIRONMENT}",
       "description": "The AWS SSL key pair for accessing EC2 instances",
+      "hcl": "false",
+      "sensitive": "false"
+    },
+    {
+      "key": "custom_ssh_port",
+      "value": "${CUSTOM_SSH_PORT}",
+      "description": "Custom SSH port for accessing VMs. If not set, the default SSH port (22) will be used",
       "hcl": "false",
       "sensitive": "false"
     },
