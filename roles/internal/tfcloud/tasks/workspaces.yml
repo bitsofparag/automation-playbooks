@@ -53,25 +53,30 @@
 
 - name: Tfc* CREATE tags for all the base workspaces
   when: (workspace_names_list|length > 0)
-  uri:
-    url: "https://app.terraform.io/api/v2/workspaces/{{ item.id }}/relationships/tags"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ tfc_token }}"
-      Content-Type: application/vnd.api+json
-      Accept: application/json
-    body:
-      data:
-        - type: "tags"
-          attributes:
-            name: "{{ deploy_environment }}"
-        - type: "tags"
-          attributes:
-            name: "{{ item.name|replace('-'+deploy_environment, '') }}"
-    body_format: "json"
-    status_code: [204, 200, 422]
-    return_content: yes
-  with_items: "{{ workspace_names_list }}"
+  block:
+    - name: Set tags if item.name contains deploy_environment
+      uri:
+        url: "https://app.terraform.io/api/v2/workspaces/{{ item.id }}/relationships/tags"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ tfc_token }}"
+          Content-Type: application/vnd.api+json
+          Accept: application/json
+        body:
+          data:
+            - type: "tags"
+              attributes:
+                name: "{{ deploy_environment }}"
+            - type: "tags"
+              attributes:
+                name: "{{ item.name|regex_replace('-.*$', '') }}"
+        body_format: "json"
+        status_code: [204, 200, 422]
+        return_content: yes
+      when: deploy_environment in item.name
+      loop: "{{ workspace_names_list }}"
+      loop_control:
+        loop_var: item
   tags:
     - tfc_base_workspaces_tags_new
 
