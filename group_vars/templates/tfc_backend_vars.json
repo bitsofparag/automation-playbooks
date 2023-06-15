@@ -15,7 +15,7 @@
       "sensitive": "false"
     },
     {
-      "key": "app_domain_name",
+      "key": "primary_domain_name",
       "value": "${DOMAIN_NAME}",
       "description": "The main domain name under which the backend apps are hosted",
       "hcl": "false",
@@ -27,6 +27,20 @@
       "description": "The SSH key pair for accessing VMs",
       "hcl": "false",
       "sensitive": "false"
+    },
+    {
+      "key": "region",
+      "value": "eu-central",
+      "hcl": "false",
+      "sensitive": "false",
+      "description": "AWS or Hetzner region where resources will be created"
+    },
+    {
+      "key": "ssh_user",
+      "value": "${OPS_USER}",
+      "hcl": "false",
+      "sensitive": "true",
+      "description": "SSH user to use for SSH connections."
     },
     {
       "key": "custom_ssh_port",
@@ -55,6 +69,13 @@
       "description": "",
       "hcl": "false",
       "sensitive": "true"
+    },
+    {
+      "key": "restricted_subdomain",
+      "value": "${RESTRICTED_SUBDOMAIN}",
+      "hcl": "false",
+      "sensitive": "true",
+      "description": "Subdomain for restricted access to the backend apps"
     },
     {
       "key": "auth_sentry_dsn",

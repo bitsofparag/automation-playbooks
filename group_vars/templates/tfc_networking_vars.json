@@ -14,6 +14,13 @@
       "description": "List of allowed AWS SSM users."
     },
     {
+      "key": "ssh_user",
+      "value": "${OPS_USER}",
+      "hcl": "false",
+      "sensitive": "true",
+      "description": "SSH user to use for SSH connections."
+    },
+    {
       "key": "bastion_ssh_port",
       "value": "${BASTION_SSH_PORT}",
       "hcl": "true",
