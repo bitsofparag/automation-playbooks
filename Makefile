@@ -82,8 +82,8 @@ ifeq (${OPS_EMAIL}, )
 	@echo "Usage: OPS_USER=ops OPS_EMAIL=abc@example.com make create-ops-ssh-key"
 	@exit 1
 endif
-	ssh-keygen -t rsa -b 4096 -N '' -C ${OPS_EMAIL} -m PEM -f ~/.ssh/${OPS_USER}
-	@cat ~/.ssh/${OPS_USER}.pub
+	ssh-keygen -t rsa -b 4096 -N '' -C ${OPS_EMAIL} -m PEM -f ~/.ssh/${OPS_USER}-${ENVIRONMENT}
+	@cat ~/.ssh/${OPS_USER}-${ENVIRONMENT}.pub
 
 
 create-ec2-key-pair: ## Create a new SSH key for ec2 instances
